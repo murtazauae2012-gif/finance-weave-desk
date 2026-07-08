@@ -11,6 +11,10 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
+import { StoreProvider } from "@/lib/store";
+import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -77,11 +81,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "Meridian Suite – Project Accounting & Billing" },
+      { name: "description", content: "Elite project-based enterprise accounting, billing, expenses and VAT reporting for fabrication and contracting businesses." },
+      { name: "author", content: "Meridian Fabrications" },
+      { property: "og:title", content: "Meridian Suite – Project Accounting & Billing" },
+      { property: "og:description", content: "Track projects, invoices, partial payments, expenses and VAT in one elite dashboard." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },
@@ -119,8 +123,27 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <StoreProvider>
+        <SidebarProvider>
+          <div className="min-h-screen flex w-full bg-background">
+            <AppSidebar />
+            <div className="flex-1 flex flex-col min-w-0">
+              <header className="h-14 flex items-center gap-3 border-b bg-card/60 backdrop-blur px-4 sticky top-0 z-30">
+                <SidebarTrigger />
+                <div className="h-5 w-px bg-border" />
+                <span className="text-sm font-medium text-foreground/80">Enterprise Accounting</span>
+                <div className="ml-auto text-xs text-muted-foreground">
+                  {new Date().toLocaleDateString("en-GB", { weekday: "short", day: "2-digit", month: "short", year: "numeric" })}
+                </div>
+              </header>
+              <main className="flex-1 p-6 overflow-x-hidden">
+                <Outlet />
+              </main>
+            </div>
+          </div>
+          <Toaster />
+        </SidebarProvider>
+      </StoreProvider>
     </QueryClientProvider>
   );
 }
