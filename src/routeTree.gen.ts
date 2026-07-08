@@ -9,10 +9,16 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as QuotationsRouteImport } from './routes/quotations'
 import { Route as ProfitRouteImport } from './routes/profit'
 import { Route as InvoicesRouteImport } from './routes/invoices'
 import { Route as IndexRouteImport } from './routes/index'
 
+const QuotationsRoute = QuotationsRouteImport.update({
+  id: '/quotations',
+  path: '/quotations',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProfitRoute = ProfitRouteImport.update({
   id: '/profit',
   path: '/profit',
@@ -33,34 +39,45 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/invoices': typeof InvoicesRoute
   '/profit': typeof ProfitRoute
+  '/quotations': typeof QuotationsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/invoices': typeof InvoicesRoute
   '/profit': typeof ProfitRoute
+  '/quotations': typeof QuotationsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/invoices': typeof InvoicesRoute
   '/profit': typeof ProfitRoute
+  '/quotations': typeof QuotationsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/invoices' | '/profit'
+  fullPaths: '/' | '/invoices' | '/profit' | '/quotations'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/invoices' | '/profit'
-  id: '__root__' | '/' | '/invoices' | '/profit'
+  to: '/' | '/invoices' | '/profit' | '/quotations'
+  id: '__root__' | '/' | '/invoices' | '/profit' | '/quotations'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   InvoicesRoute: typeof InvoicesRoute
   ProfitRoute: typeof ProfitRoute
+  QuotationsRoute: typeof QuotationsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/quotations': {
+      id: '/quotations'
+      path: '/quotations'
+      fullPath: '/quotations'
+      preLoaderRoute: typeof QuotationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profit': {
       id: '/profit'
       path: '/profit'
@@ -89,6 +106,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   InvoicesRoute: InvoicesRoute,
   ProfitRoute: ProfitRoute,
+  QuotationsRoute: QuotationsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
