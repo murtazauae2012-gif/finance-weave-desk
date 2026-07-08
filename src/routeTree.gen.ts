@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as StatementsRouteImport } from './routes/statements'
 import { Route as ReportsRouteImport } from './routes/reports'
 import { Route as QuotationsRouteImport } from './routes/quotations'
 import { Route as ProfitRouteImport } from './routes/profit'
@@ -18,6 +19,11 @@ import { Route as ExpensesRouteImport } from './routes/expenses'
 import { Route as ClientsRouteImport } from './routes/clients'
 import { Route as IndexRouteImport } from './routes/index'
 
+const StatementsRoute = StatementsRouteImport.update({
+  id: '/statements',
+  path: '/statements',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ReportsRoute = ReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
@@ -68,6 +74,7 @@ export interface FileRoutesByFullPath {
   '/profit': typeof ProfitRoute
   '/quotations': typeof QuotationsRoute
   '/reports': typeof ReportsRoute
+  '/statements': typeof StatementsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -78,6 +85,7 @@ export interface FileRoutesByTo {
   '/profit': typeof ProfitRoute
   '/quotations': typeof QuotationsRoute
   '/reports': typeof ReportsRoute
+  '/statements': typeof StatementsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -89,6 +97,7 @@ export interface FileRoutesById {
   '/profit': typeof ProfitRoute
   '/quotations': typeof QuotationsRoute
   '/reports': typeof ReportsRoute
+  '/statements': typeof StatementsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -101,6 +110,7 @@ export interface FileRouteTypes {
     | '/profit'
     | '/quotations'
     | '/reports'
+    | '/statements'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -111,6 +121,7 @@ export interface FileRouteTypes {
     | '/profit'
     | '/quotations'
     | '/reports'
+    | '/statements'
   id:
     | '__root__'
     | '/'
@@ -121,6 +132,7 @@ export interface FileRouteTypes {
     | '/profit'
     | '/quotations'
     | '/reports'
+    | '/statements'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -132,10 +144,18 @@ export interface RootRouteChildren {
   ProfitRoute: typeof ProfitRoute
   QuotationsRoute: typeof QuotationsRoute
   ReportsRoute: typeof ReportsRoute
+  StatementsRoute: typeof StatementsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/statements': {
+      id: '/statements'
+      path: '/statements'
+      fullPath: '/statements'
+      preLoaderRoute: typeof StatementsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reports': {
       id: '/reports'
       path: '/reports'
@@ -204,6 +224,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProfitRoute: ProfitRoute,
   QuotationsRoute: QuotationsRoute,
   ReportsRoute: ReportsRoute,
+  StatementsRoute: StatementsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
