@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as QuotationsRouteImport } from './routes/quotations'
 import { Route as ProfitRouteImport } from './routes/profit'
+import { Route as ProductsRouteImport } from './routes/products'
 import { Route as InvoicesRouteImport } from './routes/invoices'
 import { Route as ClientsRouteImport } from './routes/clients'
 import { Route as IndexRouteImport } from './routes/index'
@@ -23,6 +24,11 @@ const QuotationsRoute = QuotationsRouteImport.update({
 const ProfitRoute = ProfitRouteImport.update({
   id: '/profit',
   path: '/profit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductsRoute = ProductsRouteImport.update({
+  id: '/products',
+  path: '/products',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InvoicesRoute = InvoicesRouteImport.update({
@@ -45,6 +51,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/clients': typeof ClientsRoute
   '/invoices': typeof InvoicesRoute
+  '/products': typeof ProductsRoute
   '/profit': typeof ProfitRoute
   '/quotations': typeof QuotationsRoute
 }
@@ -52,6 +59,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/clients': typeof ClientsRoute
   '/invoices': typeof InvoicesRoute
+  '/products': typeof ProductsRoute
   '/profit': typeof ProfitRoute
   '/quotations': typeof QuotationsRoute
 }
@@ -60,21 +68,36 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/clients': typeof ClientsRoute
   '/invoices': typeof InvoicesRoute
+  '/products': typeof ProductsRoute
   '/profit': typeof ProfitRoute
   '/quotations': typeof QuotationsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/clients' | '/invoices' | '/profit' | '/quotations'
+  fullPaths:
+    | '/'
+    | '/clients'
+    | '/invoices'
+    | '/products'
+    | '/profit'
+    | '/quotations'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/clients' | '/invoices' | '/profit' | '/quotations'
-  id: '__root__' | '/' | '/clients' | '/invoices' | '/profit' | '/quotations'
+  to: '/' | '/clients' | '/invoices' | '/products' | '/profit' | '/quotations'
+  id:
+    | '__root__'
+    | '/'
+    | '/clients'
+    | '/invoices'
+    | '/products'
+    | '/profit'
+    | '/quotations'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ClientsRoute: typeof ClientsRoute
   InvoicesRoute: typeof InvoicesRoute
+  ProductsRoute: typeof ProductsRoute
   ProfitRoute: typeof ProfitRoute
   QuotationsRoute: typeof QuotationsRoute
 }
@@ -93,6 +116,13 @@ declare module '@tanstack/react-router' {
       path: '/profit'
       fullPath: '/profit'
       preLoaderRoute: typeof ProfitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/products': {
+      id: '/products'
+      path: '/products'
+      fullPath: '/products'
+      preLoaderRoute: typeof ProductsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/invoices': {
@@ -123,6 +153,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ClientsRoute: ClientsRoute,
   InvoicesRoute: InvoicesRoute,
+  ProductsRoute: ProductsRoute,
   ProfitRoute: ProfitRoute,
   QuotationsRoute: QuotationsRoute,
 }
