@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as StatementsRouteImport } from './routes/statements'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ReportsRouteImport } from './routes/reports'
 import { Route as QuotationsRouteImport } from './routes/quotations'
 import { Route as ProfitRouteImport } from './routes/profit'
@@ -22,6 +23,11 @@ import { Route as IndexRouteImport } from './routes/index'
 const StatementsRoute = StatementsRouteImport.update({
   id: '/statements',
   path: '/statements',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReportsRoute = ReportsRouteImport.update({
@@ -74,6 +80,7 @@ export interface FileRoutesByFullPath {
   '/profit': typeof ProfitRoute
   '/quotations': typeof QuotationsRoute
   '/reports': typeof ReportsRoute
+  '/settings': typeof SettingsRoute
   '/statements': typeof StatementsRoute
 }
 export interface FileRoutesByTo {
@@ -85,6 +92,7 @@ export interface FileRoutesByTo {
   '/profit': typeof ProfitRoute
   '/quotations': typeof QuotationsRoute
   '/reports': typeof ReportsRoute
+  '/settings': typeof SettingsRoute
   '/statements': typeof StatementsRoute
 }
 export interface FileRoutesById {
@@ -97,6 +105,7 @@ export interface FileRoutesById {
   '/profit': typeof ProfitRoute
   '/quotations': typeof QuotationsRoute
   '/reports': typeof ReportsRoute
+  '/settings': typeof SettingsRoute
   '/statements': typeof StatementsRoute
 }
 export interface FileRouteTypes {
@@ -110,6 +119,7 @@ export interface FileRouteTypes {
     | '/profit'
     | '/quotations'
     | '/reports'
+    | '/settings'
     | '/statements'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -121,6 +131,7 @@ export interface FileRouteTypes {
     | '/profit'
     | '/quotations'
     | '/reports'
+    | '/settings'
     | '/statements'
   id:
     | '__root__'
@@ -132,6 +143,7 @@ export interface FileRouteTypes {
     | '/profit'
     | '/quotations'
     | '/reports'
+    | '/settings'
     | '/statements'
   fileRoutesById: FileRoutesById
 }
@@ -144,6 +156,7 @@ export interface RootRouteChildren {
   ProfitRoute: typeof ProfitRoute
   QuotationsRoute: typeof QuotationsRoute
   ReportsRoute: typeof ReportsRoute
+  SettingsRoute: typeof SettingsRoute
   StatementsRoute: typeof StatementsRoute
 }
 
@@ -154,6 +167,13 @@ declare module '@tanstack/react-router' {
       path: '/statements'
       fullPath: '/statements'
       preLoaderRoute: typeof StatementsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reports': {
@@ -224,6 +244,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProfitRoute: ProfitRoute,
   QuotationsRoute: QuotationsRoute,
   ReportsRoute: ReportsRoute,
+  SettingsRoute: SettingsRoute,
   StatementsRoute: StatementsRoute,
 }
 export const routeTree = rootRouteImport
