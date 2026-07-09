@@ -94,32 +94,92 @@ function Reports() {
       </div>
 
       <Card className="mt-6">
-        <CardHeader><CardTitle className="text-base">Quarterly VAT Return</CardTitle></CardHeader>
-        <CardContent>
-          <table className="w-full text-sm">
-            <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
-              <tr>
-                <th className="px-3 py-2 text-left">Item</th>
-                <th className="px-3 py-2 text-right">Amount</th>
-                <th className="px-3 py-2 text-right">VAT</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              <tr><td className="px-3 py-2">Sales / Output</td>
-                <td className="px-3 py-2 text-right tabular-nums">{money(totalRevenue - outputVat, settings.currency)}</td>
-                <td className="px-3 py-2 text-right tabular-nums text-success">{money(outputVat, settings.currency)}</td>
-              </tr>
-              <tr><td className="px-3 py-2">Purchases / Input</td>
-                <td className="px-3 py-2 text-right tabular-nums">{money(totalCost - inputVat, settings.currency)}</td>
-                <td className="px-3 py-2 text-right tabular-nums text-warning">{money(inputVat, settings.currency)}</td>
-              </tr>
-              <tr className="bg-primary/5 font-bold">
-                <td className="px-3 py-2">Net VAT Payable to Authority</td>
-                <td className="px-3 py-2"></td>
-                <td className="px-3 py-2 text-right tabular-nums text-primary">{money(netVat, settings.currency)}</td>
-              </tr>
-            </tbody>
-          </table>
+        <CardHeader>
+          <CardTitle className="text-base">Quarterly VAT Return (3-Month Filing Periods)</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {(() => {
+            type Q = { key: string; label: string; range: string; sales: number; outVat: number; purchases: number; inVat: number };
+            const qmap = new Map<string, Q>();
+            const qKey = (d: string) => {
+              const dt = new Date(d);
+              const y = dt.getFullYear();
+              const q = Math.floor(dt.getMonth() / 3) + 1;
+              return { key: `${y}-Q${q}`, label: `Q${q} ${y}`, y, q };
+            };
+            const qRange = (y: number, q: number) => {
+              const start = new Date(y, (q - 1) * 3, 1);
+              const end = new Date(y, q * 3, 0);
+              const f = (d: Date) => d.toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
+              return `${f(start)} – ${f(end)} ${y}`;
+            };
+            const ensure = (d: string) => {
+              const { key, label, y, q } = qKey(d);
+              let row = qmap.get(key);
+              if (!row) {
+                row = { key, label, range: qRange(y, q), sales: 0, outVat: 0, purchases: 0, inVat: 0 };
+                qmap.set(key, row);
+              }
+              return row;
+            };
+            invoices.forEach((iv) => {
+              const r = ensure(iv.date);
+              r.sales += invoiceTotal(iv) - invoiceTax(iv);
+              r.outVat += invoiceTax(iv);
+            });
+            expenses.forEach((e) => {
+              const r = ensure(e.date);
+              r.purchases += e.amount;
+              r.inVat += e.vat;
+            });
+            const quarters = Array.from(qmap.values()).sort((a, b) => a.key.localeCompare(b.key));
+            if (quarters.length === 0) return <p className="text-sm text-muted-foreground">No data available.</p>;
+            return quarters.map((r) => {
+              const net = r.outVat - r.inVat;
+              return (
+                <div key={r.key} className="rounded-lg border border-border overflow-hidden">
+                  <div className="flex items-center justify-between bg-muted/50 px-4 py-2">
+                    <div>
+                      <div className="font-semibold text-sm">{r.label}</div>
+                      <div className="text-xs text-muted-foreground">{r.range}</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-xs text-muted-foreground">Net VAT {net >= 0 ? "Payable" : "Refundable"}</div>
+                      <div className={`font-bold tabular-nums ${net >= 0 ? "text-primary" : "text-success"}`}>
+                        {money(Math.abs(net), settings.currency)}
+                      </div>
+                    </div>
+                  </div>
+                  <table className="w-full text-sm">
+                    <thead className="text-xs uppercase text-muted-foreground">
+                      <tr>
+                        <th className="px-3 py-2 text-left">Item</th>
+                        <th className="px-3 py-2 text-right">Amount</th>
+                        <th className="px-3 py-2 text-right">VAT</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                      <tr>
+                        <td className="px-3 py-2">Sales / Output</td>
+                        <td className="px-3 py-2 text-right tabular-nums">{money(r.sales, settings.currency)}</td>
+                        <td className="px-3 py-2 text-right tabular-nums text-success">{money(r.outVat, settings.currency)}</td>
+                      </tr>
+                      <tr>
+                        <td className="px-3 py-2">Purchases / Input</td>
+                        <td className="px-3 py-2 text-right tabular-nums">{money(r.purchases, settings.currency)}</td>
+                        <td className="px-3 py-2 text-right tabular-nums text-warning">{money(r.inVat, settings.currency)}</td>
+                      </tr>
+                      <tr className="bg-primary/5 font-bold">
+                        <td className="px-3 py-2">Net VAT {net >= 0 ? "Payable" : "Refundable"}</td>
+                        <td className="px-3 py-2"></td>
+                        <td className="px-3 py-2 text-right tabular-nums text-primary">{money(net, settings.currency)}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              );
+            });
+          })()}
         </CardContent>
       </Card>
     </div>
