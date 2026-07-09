@@ -33,6 +33,12 @@ function SettingsPage() {
               </div>
             </div>
             <div><Label>Company Name</Label><Input value={f.companyName} onChange={(e) => setF({ ...f, companyName: e.target.value })} /></div>
+            <div><Label>Tagline</Label><Input value={f.companyTagline} onChange={(e) => setF({ ...f, companyTagline: e.target.value })} /></div>
+            <div><Label>Address</Label><Input value={f.companyAddress} onChange={(e) => setF({ ...f, companyAddress: e.target.value })} /></div>
+            <div className="grid grid-cols-2 gap-4">
+              <div><Label>Phone</Label><Input value={f.companyPhone} onChange={(e) => setF({ ...f, companyPhone: e.target.value })} /></div>
+              <div><Label>Email</Label><Input value={f.companyEmail} onChange={(e) => setF({ ...f, companyEmail: e.target.value })} /></div>
+            </div>
           </CardContent>
         </Card>
 
