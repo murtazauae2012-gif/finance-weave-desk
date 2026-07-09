@@ -73,6 +73,10 @@ export interface Expense {
 
 export interface Settings {
   companyName: string;
+  companyTagline: string;
+  companyAddress: string;
+  companyPhone: string;
+  companyEmail: string;
   currency: string;
   vatRate: number;
   bankDetails: string;
@@ -208,6 +212,10 @@ const seedExpenses: Expense[] = [
 
 const seedSettings: Settings = {
   companyName: "Meridian Fabrications LLC",
+  companyTagline: "Aluminum Fabrication & Custom Glass Works",
+  companyAddress: "Mussafah Industrial Area, Abu Dhabi, United Arab Emirates",
+  companyPhone: "+971 2 550 6323",
+  companyEmail: "help@meridianfab.ae",
   currency: "AED",
   vatRate: 5,
   bankDetails: "Emirates NBD  •  A/C: 1023 4455 6677  •  IBAN: AE12 0260 0010 2344 5566 778",
