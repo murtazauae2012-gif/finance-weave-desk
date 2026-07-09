@@ -10,8 +10,9 @@ import {
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { useStore, money, quoteTotal, type LineItem, type QuoteStatus } from "@/lib/store";
-import { Plus, Trash2, ArrowRightCircle } from "lucide-react";
+import { useStore, money, quoteTotal, type LineItem, type QuoteStatus, type Quotation } from "@/lib/store";
+import { Plus, Trash2, ArrowRightCircle, Eye } from "lucide-react";
+import { DocumentDialog, PrintQuotation } from "@/components/print-docs";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/quotations")({ component: Quotations });
@@ -26,6 +27,7 @@ const statusColor: Record<QuoteStatus, string> = {
 function Quotations() {
   const { quotations, clients, products, settings, addQuotation, updateQuoteStatus, convertQuoteToInvoice } = useStore();
   const [open, setOpen] = useState(false);
+  const [viewQ, setViewQ] = useState<Quotation | null>(null);
   const [clientId, setClientId] = useState("");
   const [projectName, setProjectName] = useState("");
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
@@ -124,14 +126,17 @@ function Quotations() {
                         </Select>
                       </td>
                       <td className="px-4 py-3 text-right">
-                        {q.status === "Approved" && (
-                          <Button size="sm" variant="outline" onClick={() => {
-                            const inv = convertQuoteToInvoice(q.id);
-                            if (inv) toast.success(`Created invoice ${inv.no}`);
-                          }}>
-                            <ArrowRightCircle className="h-4 w-4" /> To Invoice
-                          </Button>
-                        )}
+                        <div className="flex gap-1 justify-end">
+                          <Button size="sm" variant="ghost" onClick={() => setViewQ(q)}><Eye className="h-4 w-4" /></Button>
+                          {q.status === "Approved" && (
+                            <Button size="sm" variant="outline" onClick={() => {
+                              const inv = convertQuoteToInvoice(q.id);
+                              if (inv) toast.success(`Created invoice ${inv.no}`);
+                            }}>
+                              <ArrowRightCircle className="h-4 w-4" /> To Invoice
+                            </Button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   );
@@ -141,6 +146,10 @@ function Quotations() {
           </div>
         </CardContent>
       </Card>
+
+      <DocumentDialog open={!!viewQ} onClose={() => setViewQ(null)}>
+        {viewQ && <PrintQuotation quotation={viewQ} />}
+      </DocumentDialog>
     </div>
   );
 }

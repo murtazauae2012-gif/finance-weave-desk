@@ -2,14 +2,18 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { PageHeader } from "@/components/kpi-card";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useStore, money, invoiceTotal } from "@/lib/store";
+import { DocumentDialog, PrintStatement } from "@/components/print-docs";
+import { Printer } from "lucide-react";
 
 export const Route = createFileRoute("/statements")({ component: Statements });
 
 function Statements() {
   const { clients, invoices, settings } = useStore();
   const [clientId, setClientId] = useState(clients[0]?.id ?? "");
+  const [printOpen, setPrintOpen] = useState(false);
   const client = clients.find((c) => c.id === clientId);
 
   const clientInvs = invoices.filter((i) => i.clientId === clientId).sort((a, b) => a.date.localeCompare(b.date));
@@ -46,10 +50,15 @@ function Statements() {
   return (
     <div>
       <PageHeader title="Statement of Account" description="Real-time customer running ledger.">
-        <Select value={clientId} onValueChange={setClientId}>
-          <SelectTrigger className="w-72"><SelectValue /></SelectTrigger>
-          <SelectContent>{clients.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent>
-        </Select>
+        <div className="flex gap-2">
+          <Select value={clientId} onValueChange={setClientId}>
+            <SelectTrigger className="w-72"><SelectValue /></SelectTrigger>
+            <SelectContent>{clients.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent>
+          </Select>
+          <Button variant="outline" onClick={() => setPrintOpen(true)} disabled={!client}>
+            <Printer className="h-4 w-4" /> Print / PDF
+          </Button>
+        </div>
       </PageHeader>
 
       {client && (
@@ -117,6 +126,10 @@ function Statements() {
           </Card>
         </>
       )}
+
+      <DocumentDialog open={printOpen} onClose={() => setPrintOpen(false)}>
+        {client && <PrintStatement client={client} />}
+      </DocumentDialog>
     </div>
   );
 }
