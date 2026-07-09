@@ -81,14 +81,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Meridian Suite – Project Accounting & Billing" },
+      { title: "IRONPEAK – Project Accounting & Billing" },
       { name: "description", content: "Elite project-based enterprise accounting, billing, expenses and VAT reporting for fabrication and contracting businesses." },
       { name: "author", content: "Meridian Fabrications" },
-      { property: "og:title", content: "Meridian Suite – Project Accounting & Billing" },
-      { property: "og:description", content: "Track projects, invoices, partial payments, expenses and VAT in one elite dashboard." },
+      { property: "og:title", content: "IRONPEAK – Project Accounting & Billing" },
+      { property: "og:description", content: "Elite project-based enterprise accounting, billing, expenses and VAT reporting for fabrication and contracting businesses." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "IRONPEAK – Project Accounting & Billing" },
+      { name: "twitter:description", content: "Elite project-based enterprise accounting, billing, expenses and VAT reporting for fabrication and contracting businesses." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/fd28f77c-7de4-466d-9796-e5b1d98a8b85/id-preview-7b29448d--1cfc1a9d-3950-4b61-82b8-90f1085e5b21.lovable.app-1783571603547.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/fd28f77c-7de4-466d-9796-e5b1d98a8b85/id-preview-7b29448d--1cfc1a9d-3950-4b61-82b8-90f1085e5b21.lovable.app-1783571603547.png" },
     ],
     links: [
       {
