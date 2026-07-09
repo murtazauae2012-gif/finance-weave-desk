@@ -17,7 +17,8 @@ import {
   useStore, money, invoiceSubtotal, invoiceTax, invoiceTotal,
   invoicePaid, invoiceOutstanding, type Invoice, type LineItem, type Payment,
 } from "@/lib/store";
-import { Plus, Trash2, Eye, Printer, CreditCard } from "lucide-react";
+import { Plus, Trash2, Eye, CreditCard, Receipt } from "lucide-react";
+import { DocumentDialog, PrintInvoice, PrintVoucher } from "@/components/print-docs";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/invoices")({ component: Invoices });
@@ -26,6 +27,7 @@ function Invoices() {
   const { invoices, clients, products, settings, addInvoice, addPayment } = useStore();
   const [viewInv, setViewInv] = useState<Invoice | null>(null);
   const [payInv, setPayInv] = useState<Invoice | null>(null);
+  const [voucherOf, setVoucherOf] = useState<{ invoice: Invoice; payment: Payment } | null>(null);
 
   return (
     <div>
@@ -73,6 +75,12 @@ function Invoices() {
                         <div className="flex gap-1 justify-end">
                           <Button size="sm" variant="ghost" onClick={() => setPayInv(iv)}><CreditCard className="h-4 w-4" /></Button>
                           <Button size="sm" variant="ghost" onClick={() => setViewInv(iv)}><Eye className="h-4 w-4" /></Button>
+                          {iv.payments.length > 0 && (
+                            <Button size="sm" variant="ghost" title="Print latest voucher"
+                              onClick={() => setVoucherOf({ invoice: iv, payment: iv.payments[iv.payments.length - 1] })}>
+                              <Receipt className="h-4 w-4" />
+                            </Button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -84,7 +92,12 @@ function Invoices() {
         </CardContent>
       </Card>
 
-      {viewInv && <InvoiceViewer invoice={viewInv} onClose={() => setViewInv(null)} />}
+      <DocumentDialog open={!!viewInv} onClose={() => setViewInv(null)}>
+        {viewInv && <PrintInvoice invoice={viewInv} />}
+      </DocumentDialog>
+      <DocumentDialog open={!!voucherOf} onClose={() => setVoucherOf(null)}>
+        {voucherOf && <PrintVoucher invoice={voucherOf.invoice} payment={voucherOf.payment} />}
+      </DocumentDialog>
       {payInv && (
         <PaymentDialog
           invoice={payInv}
