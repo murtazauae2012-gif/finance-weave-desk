@@ -12,7 +12,27 @@ import {
 export const Route = createFileRoute("/reports")({ component: Reports });
 
 function Reports() {
-  const { invoices, expenses, settings } = useStore();
+  const { invoices, expenses, settings, clients } = useStore();
+
+  const detectEmirate = (text: string): string => {
+    const t = (text || "").toLowerCase();
+    if (t.includes("abu dhabi")) return "Abu Dhabi";
+    if (t.includes("dubai")) return "Dubai";
+    if (t.includes("sharjah")) return "Sharjah";
+    if (t.includes("ajman")) return "Ajman";
+    if (t.includes("fujairah")) return "Fujairah";
+    if (t.includes("ras al khaimah") || t.includes("rak")) return "Ras Al Khaimah";
+    if (t.includes("umm al quwain") || t.includes("uaq")) return "Umm Al Quwain";
+    return "Other";
+  };
+  const clientEmirate = (clientId: string) => {
+    const c = clients.find((x) => x.id === clientId);
+    return c ? detectEmirate(c.address) : "Other";
+  };
+  const invoiceEmirate = (invoiceId: string) => {
+    const iv = invoices.find((x) => x.id === invoiceId);
+    return iv ? clientEmirate(iv.clientId) : "General / Overhead";
+  };
 
   const outputVat = invoices.reduce((s, i) => s + invoiceTax(i), 0);
   const inputVat = expenses.reduce((s, e) => s + e.vat, 0);
@@ -179,6 +199,78 @@ function Reports() {
                 </div>
               );
             });
+          })()}
+        </CardContent>
+      </Card>
+
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle className="text-base">Emirate-wise VAT Breakdown (Sales & Purchases)</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {(() => {
+            type Row = { emirate: string; sales: number; outVat: number; purchases: number; inVat: number };
+            const map = new Map<string, Row>();
+            const ensure = (em: string) => {
+              let r = map.get(em);
+              if (!r) { r = { emirate: em, sales: 0, outVat: 0, purchases: 0, inVat: 0 }; map.set(em, r); }
+              return r;
+            };
+            invoices.forEach((iv) => {
+              const r = ensure(clientEmirate(iv.clientId));
+              r.sales += invoiceTotal(iv) - invoiceTax(iv);
+              r.outVat += invoiceTax(iv);
+            });
+            expenses.forEach((e) => {
+              const em = e.projectId === "GENERAL" ? "General / Overhead" : invoiceEmirate(e.projectId);
+              const r = ensure(em);
+              r.purchases += e.amount;
+              r.inVat += e.vat;
+            });
+            const rows = Array.from(map.values()).sort((a, b) => a.emirate.localeCompare(b.emirate));
+            const totals = rows.reduce((t, r) => ({
+              sales: t.sales + r.sales, outVat: t.outVat + r.outVat,
+              purchases: t.purchases + r.purchases, inVat: t.inVat + r.inVat,
+            }), { sales: 0, outVat: 0, purchases: 0, inVat: 0 });
+            return (
+              <div className="overflow-x-auto rounded-lg border border-border">
+                <table className="w-full text-sm">
+                  <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
+                    <tr>
+                      <th className="px-3 py-2 text-left">Emirate</th>
+                      <th className="px-3 py-2 text-right">Sales (Excl. VAT)</th>
+                      <th className="px-3 py-2 text-right">Output VAT</th>
+                      <th className="px-3 py-2 text-right">Purchases (Excl. VAT)</th>
+                      <th className="px-3 py-2 text-right">Input VAT</th>
+                      <th className="px-3 py-2 text-right">Net VAT</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {rows.map((r) => {
+                      const net = r.outVat - r.inVat;
+                      return (
+                        <tr key={r.emirate}>
+                          <td className="px-3 py-2 font-medium">{r.emirate}</td>
+                          <td className="px-3 py-2 text-right tabular-nums">{money(r.sales, settings.currency)}</td>
+                          <td className="px-3 py-2 text-right tabular-nums text-success">{money(r.outVat, settings.currency)}</td>
+                          <td className="px-3 py-2 text-right tabular-nums">{money(r.purchases, settings.currency)}</td>
+                          <td className="px-3 py-2 text-right tabular-nums text-warning">{money(r.inVat, settings.currency)}</td>
+                          <td className={`px-3 py-2 text-right tabular-nums font-semibold ${net >= 0 ? "text-primary" : "text-success"}`}>{money(net, settings.currency)}</td>
+                        </tr>
+                      );
+                    })}
+                    <tr className="bg-primary/5 font-bold">
+                      <td className="px-3 py-2">Total</td>
+                      <td className="px-3 py-2 text-right tabular-nums">{money(totals.sales, settings.currency)}</td>
+                      <td className="px-3 py-2 text-right tabular-nums text-success">{money(totals.outVat, settings.currency)}</td>
+                      <td className="px-3 py-2 text-right tabular-nums">{money(totals.purchases, settings.currency)}</td>
+                      <td className="px-3 py-2 text-right tabular-nums text-warning">{money(totals.inVat, settings.currency)}</td>
+                      <td className="px-3 py-2 text-right tabular-nums text-primary">{money(totals.outVat - totals.inVat, settings.currency)}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            );
           })()}
         </CardContent>
       </Card>
