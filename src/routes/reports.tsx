@@ -12,8 +12,7 @@ import {
 export const Route = createFileRoute("/reports")({ component: Reports });
 
 function Reports() {
-  const { invoices, expenses, settings } = useStore();
-  const { clients } = useStore();
+  const { invoices, expenses, settings, clients } = useStore();
 
   const detectEmirate = (text: string): string => {
     const t = (text || "").toLowerCase();
