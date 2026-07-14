@@ -13,6 +13,27 @@ export const Route = createFileRoute("/reports")({ component: Reports });
 
 function Reports() {
   const { invoices, expenses, settings } = useStore();
+  const { clients } = useStore();
+
+  const detectEmirate = (text: string): string => {
+    const t = (text || "").toLowerCase();
+    if (t.includes("abu dhabi")) return "Abu Dhabi";
+    if (t.includes("dubai")) return "Dubai";
+    if (t.includes("sharjah")) return "Sharjah";
+    if (t.includes("ajman")) return "Ajman";
+    if (t.includes("fujairah")) return "Fujairah";
+    if (t.includes("ras al khaimah") || t.includes("rak")) return "Ras Al Khaimah";
+    if (t.includes("umm al quwain") || t.includes("uaq")) return "Umm Al Quwain";
+    return "Other";
+  };
+  const clientEmirate = (clientId: string) => {
+    const c = clients.find((x) => x.id === clientId);
+    return c ? detectEmirate(c.address) : "Other";
+  };
+  const invoiceEmirate = (invoiceId: string) => {
+    const iv = invoices.find((x) => x.id === invoiceId);
+    return iv ? clientEmirate(iv.clientId) : "General / Overhead";
+  };
 
   const outputVat = invoices.reduce((s, i) => s + invoiceTax(i), 0);
   const inputVat = expenses.reduce((s, e) => s + e.vat, 0);
