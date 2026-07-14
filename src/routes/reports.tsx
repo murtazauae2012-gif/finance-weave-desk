@@ -119,8 +119,14 @@ function Reports() {
         </CardHeader>
         <CardContent className="space-y-6">
           {(() => {
-            type Q = { key: string; label: string; range: string; sales: number; outVat: number; purchases: number; inVat: number };
+            type EmRow = { sales: number; outVat: number; purchases: number; inVat: number };
+            type Q = { key: string; label: string; range: string; sales: number; outVat: number; purchases: number; inVat: number; emirates: Map<string, EmRow> };
             const qmap = new Map<string, Q>();
+            const ensureEm = (q: Q, em: string) => {
+              let r = q.emirates.get(em);
+              if (!r) { r = { sales: 0, outVat: 0, purchases: 0, inVat: 0 }; q.emirates.set(em, r); }
+              return r;
+            };
             const qKey = (d: string) => {
               const dt = new Date(d);
               const y = dt.getFullYear();
@@ -137,20 +143,25 @@ function Reports() {
               const { key, label, y, q } = qKey(d);
               let row = qmap.get(key);
               if (!row) {
-                row = { key, label, range: qRange(y, q), sales: 0, outVat: 0, purchases: 0, inVat: 0 };
+                row = { key, label, range: qRange(y, q), sales: 0, outVat: 0, purchases: 0, inVat: 0, emirates: new Map() };
                 qmap.set(key, row);
               }
               return row;
             };
             invoices.forEach((iv) => {
               const r = ensure(iv.date);
-              r.sales += invoiceTotal(iv) - invoiceTax(iv);
-              r.outVat += invoiceTax(iv);
+              const s = invoiceTotal(iv) - invoiceTax(iv);
+              const v = invoiceTax(iv);
+              r.sales += s; r.outVat += v;
+              const em = ensureEm(r, clientEmirate(iv.clientId));
+              em.sales += s; em.outVat += v;
             });
             expenses.forEach((e) => {
               const r = ensure(e.date);
-              r.purchases += e.amount;
-              r.inVat += e.vat;
+              r.purchases += e.amount; r.inVat += e.vat;
+              const emName = e.projectId === "GENERAL" ? "General / Overhead" : invoiceEmirate(e.projectId);
+              const em = ensureEm(r, emName);
+              em.purchases += e.amount; em.inVat += e.vat;
             });
             const quarters = Array.from(qmap.values()).sort((a, b) => a.key.localeCompare(b.key));
             if (quarters.length === 0) return <p className="text-sm text-muted-foreground">No data available.</p>;
@@ -196,6 +207,40 @@ function Reports() {
                       </tr>
                     </tbody>
                   </table>
+                  <div className="border-t border-border">
+                    <div className="px-4 py-2 text-xs font-semibold uppercase text-muted-foreground bg-muted/30">
+                      Emirate-wise Breakdown
+                    </div>
+                    <table className="w-full text-sm">
+                      <thead className="text-xs uppercase text-muted-foreground">
+                        <tr>
+                          <th className="px-3 py-2 text-left">Emirate</th>
+                          <th className="px-3 py-2 text-right">Sales</th>
+                          <th className="px-3 py-2 text-right">Output VAT</th>
+                          <th className="px-3 py-2 text-right">Purchases</th>
+                          <th className="px-3 py-2 text-right">Input VAT</th>
+                          <th className="px-3 py-2 text-right">Net VAT</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-border">
+                        {Array.from(r.emirates.entries())
+                          .sort((a, b) => a[0].localeCompare(b[0]))
+                          .map(([em, row]) => {
+                            const n = row.outVat - row.inVat;
+                            return (
+                              <tr key={em}>
+                                <td className="px-3 py-2 font-medium">{em}</td>
+                                <td className="px-3 py-2 text-right tabular-nums">{money(row.sales, settings.currency)}</td>
+                                <td className="px-3 py-2 text-right tabular-nums text-success">{money(row.outVat, settings.currency)}</td>
+                                <td className="px-3 py-2 text-right tabular-nums">{money(row.purchases, settings.currency)}</td>
+                                <td className="px-3 py-2 text-right tabular-nums text-warning">{money(row.inVat, settings.currency)}</td>
+                                <td className={`px-3 py-2 text-right tabular-nums font-semibold ${n >= 0 ? "text-primary" : "text-success"}`}>{money(n, settings.currency)}</td>
+                              </tr>
+                            );
+                          })}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               );
             });
