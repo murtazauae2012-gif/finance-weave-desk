@@ -76,7 +76,7 @@ function Quotations() {
                       onChange={(e) => update(i, { description: e.target.value })}
                       placeholder="Type description or pick a product below..."
                     />
-                    <Select value="" onValueChange={(v) => {
+                    <Select onValueChange={(v) => {
                       const p = products.find((x) => x.id === v);
                       if (p) update(i, { description: p.name, unit: p.unit ?? r.unit, unitPrice: p.price ?? r.unitPrice });
                     }}>
