@@ -233,8 +233,12 @@ interface Store {
   addClient: (c: Omit<Client, "id">) => void;
   addProduct: (p: Omit<Product, "id">) => void;
   addInvoice: (i: Omit<Invoice, "id" | "no">) => Invoice;
+  updateInvoice: (id: string, i: Partial<Omit<Invoice, "id" | "no">>) => void;
+  deleteInvoice: (id: string) => void;
   addPayment: (invoiceId: string, p: Payment) => void;
   addQuotation: (q: Omit<Quotation, "id" | "no">) => void;
+  updateQuotation: (id: string, q: Partial<Omit<Quotation, "id" | "no">>) => void;
+  deleteQuotation: (id: string) => void;
   updateQuoteStatus: (id: string, status: QuoteStatus) => void;
   convertQuoteToInvoice: (id: string) => Invoice | null;
   addExpense: (e: Omit<Expense, "id">) => void;
@@ -267,12 +271,18 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setInvoices((prev) => [...prev, inv]);
       return inv;
     },
+    updateInvoice: (id, patch) =>
+      setInvoices((prev) => prev.map((iv) => (iv.id === id ? { ...iv, ...patch } : iv))),
+    deleteInvoice: (id) => setInvoices((prev) => prev.filter((iv) => iv.id !== id)),
     addPayment: (invoiceId, p) =>
       setInvoices((prev) => prev.map((iv) => iv.id === invoiceId ? { ...iv, payments: [...iv.payments, p] } : iv)),
     addQuotation: (q) => {
       const no = `${todayCode()}-QT${pad(quotations.length + 1)}`;
       setQuotations((prev) => [...prev, { ...q, id: `QT-${prev.length + 1}`, no }]);
     },
+    updateQuotation: (id, patch) =>
+      setQuotations((prev) => prev.map((q) => (q.id === id ? { ...q, ...patch } : q))),
+    deleteQuotation: (id) => setQuotations((prev) => prev.filter((q) => q.id !== id)),
     updateQuoteStatus: (id, status) =>
       setQuotations((prev) => prev.map((q) => q.id === id ? { ...q, status } : q)),
     convertQuoteToInvoice: (id) => {
