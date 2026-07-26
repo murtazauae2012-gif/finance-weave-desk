@@ -105,7 +105,7 @@ export function PrintInvoice({ invoice }: { invoice: Invoice }) {
           {invoice.items.map((r, i) => (
             <tr key={i}>
               <td className={cellBody + " text-center"}>{i + 1}</td>
-              <td className={cellBody}>{r.description}</td>
+              <td className={cellBody + " w-2/5 text-left whitespace-normal break-words max-w-xs"}>{r.description}</td>
               <td className={cellBody + " text-center tabular-nums"}>{r.qty}</td>
               <td className={cellBody + " text-center"}>{r.unit}</td>
               <td className={cellBody + " text-right tabular-nums"}>{money(r.unitPrice, settings.currency)}</td>
@@ -208,7 +208,7 @@ export function PrintQuotation({ quotation }: { quotation: Quotation }) {
           {quotation.items.map((r, i) => (
             <tr key={i}>
               <td className={cellBody + " text-center"}>{i + 1}</td>
-              <td className={cellBody}>{r.description}</td>
+              <td className={cellBody + " w-2/5 text-left whitespace-normal break-words max-w-xs"}>{r.description}</td>
               <td className={cellBody + " text-center tabular-nums"}>{r.qty}</td>
               <td className={cellBody + " text-center"}>{r.unit}</td>
               <td className={cellBody + " text-right tabular-nums"}>{money(r.unitPrice, settings.currency)}</td>
