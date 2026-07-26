@@ -162,13 +162,26 @@ function NewInvoiceDialog({ onCreate }: { onCreate: (i: Omit<Invoice, "id" | "no
             {items.map((r, i) => (
               <div key={i} className="grid grid-cols-12 gap-2 items-center">
                 <div className="col-span-5">
-                  <Select value={r.description} onValueChange={(v) => {
-                    const p = products.find((x) => x.name === v);
-                    update(i, { description: v, unit: p?.unit ?? r.unit, unitPrice: p?.price ?? r.unitPrice });
-                  }}>
-                    <SelectTrigger><SelectValue placeholder="Select product or type" /></SelectTrigger>
-                    <SelectContent>{products.map((p) => <SelectItem key={p.id} value={p.name}>{p.name}</SelectItem>)}</SelectContent>
-                  </Select>
+                  <div className="flex flex-col gap-1">
+                    <Input
+                      value={r.description}
+                      onChange={(e) => update(i, { description: e.target.value })}
+                      placeholder="Type description or pick a product below..."
+                    />
+                    <Select value="" onValueChange={(v) => {
+                      const p = products.find((x) => x.id === v);
+                      if (p) update(i, { description: p.name, unit: p.unit ?? r.unit, unitPrice: p.price ?? r.unitPrice });
+                    }}>
+                      <SelectTrigger className="h-8 text-xs text-muted-foreground bg-muted/50">
+                        <SelectValue placeholder="— Select from product list (optional) —" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {products.map((p) => (
+                          <SelectItem key={p.id} value={p.id}>{p.name} — {money(p.price, settings.currency)}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
                 <Input className="col-span-2" type="number" value={r.qty} onChange={(e) => update(i, { qty: +e.target.value })} placeholder="Qty" />
                 <Input className="col-span-2" value={r.unit} onChange={(e) => update(i, { unit: e.target.value })} placeholder="Unit" />
