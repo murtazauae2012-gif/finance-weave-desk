@@ -17,16 +17,22 @@ import {
   useStore, money, invoiceSubtotal, invoiceTax, invoiceTotal,
   invoicePaid, invoiceOutstanding, type Invoice, type LineItem, type Payment,
 } from "@/lib/store";
-import { Plus, Trash2, Eye, CreditCard, Receipt } from "lucide-react";
+import { Plus, Trash2, Eye, CreditCard, Receipt, Pencil } from "lucide-react";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { DocumentDialog, PrintInvoice, PrintVoucher } from "@/components/print-docs";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/invoices")({ component: Invoices });
 
 function Invoices() {
-  const { invoices, clients, products, settings, addInvoice, addPayment } = useStore();
+  const { invoices, clients, products, settings, addInvoice, updateInvoice, deleteInvoice, addPayment } = useStore();
   const [viewInv, setViewInv] = useState<Invoice | null>(null);
   const [payInv, setPayInv] = useState<Invoice | null>(null);
+  const [editInv, setEditInv] = useState<Invoice | null>(null);
+  const [delInv, setDelInv] = useState<Invoice | null>(null);
   const [voucherOf, setVoucherOf] = useState<{ invoice: Invoice; payment: Payment } | null>(null);
 
   return (
@@ -75,6 +81,8 @@ function Invoices() {
                         <div className="flex gap-1 justify-end">
                           <Button size="sm" variant="ghost" onClick={() => setPayInv(iv)}><CreditCard className="h-4 w-4" /></Button>
                           <Button size="sm" variant="ghost" onClick={() => setViewInv(iv)}><Eye className="h-4 w-4" /></Button>
+                          <Button size="sm" variant="ghost" title="Edit invoice" onClick={() => setEditInv(iv)}><Pencil className="h-4 w-4" /></Button>
+                          <Button size="sm" variant="ghost" title="Delete invoice" className="text-destructive hover:text-destructive" onClick={() => setDelInv(iv)}><Trash2 className="h-4 w-4" /></Button>
                           {iv.payments.length > 0 && (
                             <Button size="sm" variant="ghost" title="Print latest voucher"
                               onClick={() => setVoucherOf({ invoice: iv, payment: iv.payments[iv.payments.length - 1] })}>
@@ -105,19 +113,52 @@ function Invoices() {
           onSave={(p) => { addPayment(payInv.id, p); toast.success("Payment recorded"); setPayInv(null); }}
         />
       )}
+      {editInv && (
+        <NewInvoiceDialog
+          key={editInv.id}
+          editing={editInv}
+          onClose={() => setEditInv(null)}
+          onCreate={(payload) => { updateInvoice(editInv.id, payload); toast.success("Invoice updated"); setEditInv(null); }}
+        />
+      )}
+      <AlertDialog open={!!delInv} onOpenChange={(o) => !o && setDelInv(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete invoice {delInv?.no}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This permanently removes the invoice and all its recorded payments. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => { if (delInv) { deleteInvoice(delInv.id); toast.success("Invoice deleted"); } setDelInv(null); }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
 
-function NewInvoiceDialog({ onCreate }: { onCreate: (i: Omit<Invoice, "id" | "no">) => void }) {
+function NewInvoiceDialog({ onCreate, editing, onClose }: {
+  onCreate: (i: Omit<Invoice, "id" | "no">) => void;
+  editing?: Invoice;
+  onClose?: () => void;
+}) {
   const { clients, products, settings } = useStore();
-  const [open, setOpen] = useState(false);
-  const [clientId, setClientId] = useState("");
-  const [projectName, setProjectName] = useState("");
-  const [lpoNo, setLpoNo] = useState("");
-  const [lpoValue, setLpoValue] = useState(0);
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
-  const [items, setItems] = useState<LineItem[]>([{ description: "", qty: 1, unit: "Pcs", unitPrice: 0 }]);
+  const [open, setOpen] = useState(!!editing);
+  const [clientId, setClientId] = useState(editing?.clientId ?? "");
+  const [projectName, setProjectName] = useState(editing?.projectName ?? "");
+  const [lpoNo, setLpoNo] = useState(editing?.lpoNo ?? "");
+  const [lpoValue, setLpoValue] = useState(editing?.lpoValue ?? 0);
+  const [date, setDate] = useState(editing?.date ?? new Date().toISOString().slice(0, 10));
+  const [items, setItems] = useState<LineItem[]>(
+    editing ? editing.items.map((i) => ({ ...i })) : [{ description: "", qty: 1, unit: "Pcs", unitPrice: 0 }]
+  );
 
   const update = (i: number, patch: Partial<LineItem>) =>
     setItems((prev) => prev.map((r, idx) => idx === i ? { ...r, ...patch } : r));
@@ -128,17 +169,24 @@ function NewInvoiceDialog({ onCreate }: { onCreate: (i: Omit<Invoice, "id" | "no
 
   const save = () => {
     if (!clientId || !projectName) { toast.error("Select client and project"); return; }
-    onCreate({ date, clientId, projectName, lpoNo, lpoValue, items, taxRate: settings.vatRate, payments: [] });
+    onCreate({
+      date, clientId, projectName, lpoNo, lpoValue, items,
+      taxRate: editing?.taxRate ?? settings.vatRate,
+      payments: editing?.payments ?? [],
+    });
+    if (editing) return;
     setOpen(false);
     setClientId(""); setProjectName(""); setLpoNo(""); setLpoValue(0);
     setItems([{ description: "", qty: 1, unit: "Pcs", unitPrice: 0 }]);
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild><Button><Plus className="h-4 w-4" /> New Invoice</Button></DialogTrigger>
+    <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) onClose?.(); }}>
+      {!editing && (
+        <DialogTrigger asChild><Button><Plus className="h-4 w-4" /> New Invoice</Button></DialogTrigger>
+      )}
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader><DialogTitle>Create Tax Invoice</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle>{editing ? `Edit Invoice ${editing.no}` : "Create Tax Invoice"}</DialogTitle></DialogHeader>
         <div className="grid grid-cols-2 gap-4">
           <div><Label>Date</Label><Input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></div>
           <div>
@@ -198,7 +246,7 @@ function NewInvoiceDialog({ onCreate }: { onCreate: (i: Omit<Invoice, "id" | "no
           <div className="p-3 rounded-md bg-primary text-primary-foreground"><div className="text-xs opacity-80">Grand Total</div><div className="font-bold tabular-nums">{money(total, settings.currency)}</div></div>
         </div>
 
-        <DialogFooter><Button onClick={save}>Save Invoice</Button></DialogFooter>
+        <DialogFooter><Button onClick={save}>{editing ? "Save Changes" : "Save Invoice"}</Button></DialogFooter>
       </DialogContent>
     </Dialog>
   );
