@@ -79,13 +79,18 @@ export function PrintInvoice({ invoice }: { invoice: Invoice }) {
             <td className={rowLabel}>Invoice Date:</td><td>{invoice.date}</td>
           </tr>
           <tr>
-            <td className={rowLabel}>Project Name:</td><td>{invoice.projectName}</td>
+            <td className={rowLabel}>TRN No:</td>
+            <td className="font-mono">{client?.trnNo || "—"}</td>
             <td className={rowLabel}>LPO Number:</td><td className="font-mono">{invoice.lpoNo || "—"}</td>
           </tr>
           <tr>
-            <td className={rowLabel}>Site Location:</td><td>{client?.address}</td>
+            <td className={rowLabel}>Project Name:</td><td>{invoice.projectName}</td>
             <td className={rowLabel}>LPO Value:</td>
             <td className="tabular-nums">{invoice.lpoValue ? money(invoice.lpoValue, settings.currency) : "—"}</td>
+          </tr>
+          <tr>
+            <td className={rowLabel}>Site Location:</td><td>{client?.address}</td>
+            <td className={rowLabel}></td><td></td>
           </tr>
         </tbody>
       </table>
