@@ -189,8 +189,13 @@ export function PrintQuotation({ quotation }: { quotation: Quotation }) {
             <td className={rowLabel}>Date:</td><td>{quotation.date}</td>
           </tr>
           <tr>
-            <td className={rowLabel}>Project Name:</td><td>{quotation.projectName}</td>
+            <td className={rowLabel}>TRN No:</td>
+            <td className="font-mono">{client?.trnNo || "—"}</td>
             <td className={rowLabel}>Valid Until:</td><td>{quotation.validUntil}</td>
+          </tr>
+          <tr>
+            <td className={rowLabel}>Project Name:</td><td>{quotation.projectName}</td>
+            <td className={rowLabel}></td><td></td>
           </tr>
           <tr>
             <td className={rowLabel}>Site Location:</td><td colSpan={3}>{client?.address}</td>
