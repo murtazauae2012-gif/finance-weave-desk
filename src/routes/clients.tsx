@@ -24,7 +24,7 @@ function Clients() {
   const clientInvoices = invoices.filter((i) => i.clientId === selected);
 
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ name: "", contact: "", phone: "", email: "", address: "" });
+  const [form, setForm] = useState({ name: "", contact: "", phone: "", email: "", address: "", trnNo: "" });
 
   return (
     <div>
@@ -40,6 +40,11 @@ function Clients() {
                 <div><Label>Phone</Label><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></div>
                 <div><Label>Email</Label><Input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></div>
               </div>
+              <div>
+                <Label>TRN No</Label>
+                <Input value={form.trnNo} placeholder="Enter 16 digit number" onChange={(e) => setForm({ ...form, trnNo: e.target.value })} />
+                <p className="text-xs text-muted-foreground mt-1">Enter 16 digit number (with or without dashes).</p>
+              </div>
               <div><Label>Site Location</Label><Textarea value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} /></div>
             </div>
             <DialogFooter>
@@ -48,7 +53,7 @@ function Clients() {
                 addClient(form);
                 toast.success("Client added");
                 setOpen(false);
-                setForm({ name: "", contact: "", phone: "", email: "", address: "" });
+                setForm({ name: "", contact: "", phone: "", email: "", address: "", trnNo: "" });
               }}>Save</Button>
             </DialogFooter>
           </DialogContent>
@@ -81,6 +86,9 @@ function Clients() {
                   <div className="flex items-center gap-2"><Mail className="h-4 w-4 text-muted-foreground" /> {client.email}</div>
                   <div className="flex items-center gap-2"><MapPin className="h-4 w-4 text-muted-foreground" /> {client.address}</div>
                 </div>
+                {client.trnNo && (
+                  <div className="mt-3 text-sm"><span className="text-muted-foreground">TRN No:</span> {client.trnNo}</div>
+                )}
               </CardContent>
             </Card>
 

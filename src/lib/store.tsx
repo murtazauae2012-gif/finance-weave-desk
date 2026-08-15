@@ -10,6 +10,7 @@ export interface Client {
   phone: string;
   email: string;
   address: string;
+  trnNo: string;
 }
 
 export interface Product {
@@ -102,9 +103,9 @@ export const expenseTotal = (e: Expense) => e.amount + e.vat;
 
 // ------- seed data -------
 const seedClients: Client[] = [
-  { id: "CL-001", name: "Emirates Marina Developments", contact: "Ahmed Al Marri", phone: "+971 50 445 7821", email: "projects@emiratesmarina.ae", address: "Dubai Marina, Tower 7, UAE" },
-  { id: "CL-002", name: "Nakheel Interiors LLC", contact: "Fatima Hussein", phone: "+971 52 334 1187", email: "purchasing@nakheelint.com", address: "Al Quoz Industrial 3, Dubai" },
-  { id: "CL-003", name: "Sharjah Facade Contractors", contact: "Rakesh Menon", phone: "+971 55 991 4432", email: "r.menon@sharjahfacade.ae", address: "Industrial Area 12, Sharjah" },
+  { id: "CL-001", name: "Emirates Marina Developments", contact: "Ahmed Al Marri", phone: "+971 50 445 7821", email: "projects@emiratesmarina.ae", address: "Dubai Marina, Tower 7, UAE", trnNo: "" },
+  { id: "CL-002", name: "Nakheel Interiors LLC", contact: "Fatima Hussein", phone: "+971 52 334 1187", email: "purchasing@nakheelint.com", address: "Al Quoz Industrial 3, Dubai", trnNo: "" },
+  { id: "CL-003", name: "Sharjah Facade Contractors", contact: "Rakesh Menon", phone: "+971 55 991 4432", email: "r.menon@sharjahfacade.ae", address: "Industrial Area 12, Sharjah", trnNo: "" },
 ];
 
 const seedProducts: Product[] = [
