@@ -86,6 +86,9 @@ function Clients() {
                   <div className="flex items-center gap-2"><Mail className="h-4 w-4 text-muted-foreground" /> {client.email}</div>
                   <div className="flex items-center gap-2"><MapPin className="h-4 w-4 text-muted-foreground" /> {client.address}</div>
                 </div>
+                {client.trnNo && (
+                  <div className="mt-3 text-sm"><span className="text-muted-foreground">TRN No:</span> {client.trnNo}</div>
+                )}
               </CardContent>
             </Card>
 
