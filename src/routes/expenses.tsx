@@ -203,6 +203,8 @@ function Expenses() {
                       <th className="px-4 py-3 text-left">Date</th>
                       <th className="px-4 py-3 text-left">Project</th>
                       <th className="px-4 py-3 text-left">Vendor</th>
+                      <th className="px-4 py-3 text-left">TRN No</th>
+                      <th className="px-4 py-3 text-left">Emirate</th>
                       <th className="px-4 py-3 text-left">Category</th>
                       <th className="px-4 py-3 text-left">Ref</th>
                       <th className="px-4 py-3 text-right">Amount</th>
