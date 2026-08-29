@@ -221,6 +221,8 @@ function Expenses() {
                           <td className="px-4 py-3">{e.date}</td>
                           <td className="px-4 py-3">{proj?.projectName ?? "General / Overhead"}</td>
                           <td className="px-4 py-3">{e.vendor}</td>
+                          <td className="px-4 py-3 font-mono text-xs">{e.trnNo || "—"}</td>
+                          <td className="px-4 py-3">{e.emirate || "—"}</td>
                           <td className="px-4 py-3">
                             <span className="text-xs px-2 py-1 rounded bg-primary/10 text-primary font-medium">{e.category}</span>
                           </td>
