@@ -172,7 +172,7 @@ function Expenses() {
               <Button onClick={() => {
                 if (!form.vendor || !form.amount) return toast.error("Vendor & amount required");
                 addExpense(form); toast.success("Expense logged"); setOpen(false);
-                setForm({ ...form, vendor: "", refNo: "", amount: 0, vat: 0 });
+                setForm({ ...emptyForm, date: form.date, projectId: form.projectId, category: form.category });
               }}>Save</Button>
             </DialogFooter>
           </DialogContent>
