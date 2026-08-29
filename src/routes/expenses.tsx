@@ -25,19 +25,56 @@ const catMeta: Record<ExpenseCategory, { icon: any; tone: any }> = {
   Other:    { icon: MoreHorizontal, tone: "default" },
 };
 
+const emptyForm = {
+  date: new Date().toISOString().slice(0, 10),
+  projectId: "GENERAL" as string,
+  vendor: "",
+  category: "Material" as ExpenseCategory,
+  refNo: "",
+  amount: 0,
+  vat: 0,
+  trnNo: "",
+  emirate: "",
+  billImage: "",
+};
+
 function Expenses() {
   const { expenses, invoices, settings, addExpense } = useStore();
   const [tab, setTab] = useState<"All" | ExpenseCategory>("All");
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({
-    date: new Date().toISOString().slice(0, 10),
-    projectId: "GENERAL" as string,
-    vendor: "",
-    category: "Material" as ExpenseCategory,
-    refNo: "",
-    amount: 0,
-    vat: 0,
-  });
+  const [scanning, setScanning] = useState(false);
+  const [form, setForm] = useState(emptyForm);
+  const runScan = useServerFn(scanBill);
+
+  const handleBillPhoto = async (file: File) => {
+    setScanning(true);
+    try {
+      const dataUrl: string = await new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(String(r.result));
+        r.onerror = () => reject(new Error("Could not read file"));
+        r.readAsDataURL(file);
+      });
+      const res = await runScan({ data: { imageDataUrl: dataUrl } });
+      setForm((f) => ({
+        ...f,
+        billImage: dataUrl,
+        vendor: res.vendor || f.vendor,
+        refNo: res.refNo || f.refNo,
+        date: res.date || f.date,
+        amount: res.amount || f.amount,
+        vat: res.vat || (res.amount ? (res.amount * settings.vatRate) / 100 : f.vat),
+        trnNo: res.trnNo || f.trnNo,
+        emirate: res.emirate || f.emirate,
+        category: res.category || f.category,
+      }));
+      toast.success("Bill scanned — details auto-filled");
+    } catch (err: any) {
+      toast.error(err?.message || "Could not read the bill");
+    } finally {
+      setScanning(false);
+    }
+  };
 
   const totals = (["Material","Petrol","Rent","Other"] as ExpenseCategory[]).reduce((acc, c) => {
     acc[c] = expenses.filter((e) => e.category === c).reduce((s, e) => s + expenseTotal(e), 0);
