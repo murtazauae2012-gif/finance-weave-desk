@@ -143,6 +143,24 @@ function Expenses() {
               </div>
               <div><Label>Vendor</Label><Input value={form.vendor} onChange={(e) => setForm({ ...form, vendor: e.target.value })} /></div>
               <div><Label>Invoice / Receipt Ref</Label><Input value={form.refNo} onChange={(e) => setForm({ ...form, refNo: e.target.value })} /></div>
+              <div>
+                <Label>Vendor TRN No</Label>
+                <Input
+                  value={form.trnNo}
+                  onChange={(e) => setForm({ ...form, trnNo: e.target.value })}
+                  placeholder="Enter 16 digit number"
+                />
+                <p className="text-xs text-muted-foreground mt-1">Enter 16 digit number (dashes optional)</p>
+              </div>
+              <div>
+                <Label>Emirate / State</Label>
+                <Select value={form.emirate || undefined} onValueChange={(v) => setForm({ ...form, emirate: v })}>
+                  <SelectTrigger><SelectValue placeholder="Select emirate" /></SelectTrigger>
+                  <SelectContent>
+                    {EMIRATES.map((em) => <SelectItem key={em} value={em}>{em}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
               <div><Label>Amount (excl. VAT)</Label><Input type="number" value={form.amount} onChange={(e) => setForm({ ...form, amount: +e.target.value, vat: +(e.target.value) * settings.vatRate / 100 })} /></div>
               <div><Label>VAT Paid ({settings.vatRate}%)</Label><Input type="number" value={form.vat} onChange={(e) => setForm({ ...form, vat: +e.target.value })} /></div>
               <div className="col-span-2 p-3 rounded-md bg-muted text-sm flex justify-between">
