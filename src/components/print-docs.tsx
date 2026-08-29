@@ -14,7 +14,7 @@ function Sheet({ children }: { children: ReactNode }) {
   return (
     <div
       className="print-sheet bg-white text-black mx-auto"
-      style={{ width: "210mm", minHeight: "297mm", padding: "14mm", fontFamily: "'Helvetica Neue', Arial, sans-serif" }}
+      style={{ width: "210mm", maxWidth: "100%", minHeight: "297mm", padding: "14mm", fontFamily: "'Helvetica Neue', Arial, sans-serif" }}
     >
       {children}
     </div>
@@ -46,7 +46,7 @@ const totalBg = { background: "#e6f4f2" };
 
 function SignatureBlock({ left, right }: { left: string; right: string }) {
   return (
-    <div className="grid grid-cols-2 gap-8 mt-10 text-xs">
+    <div className="grid grid-cols-2 gap-8 mt-10 text-xs avoid-break">
       {[left, right].map((label) => (
         <div key={label} className="text-center">
           <div className="border-t border-black pt-1 mx-4">{label}</div>
