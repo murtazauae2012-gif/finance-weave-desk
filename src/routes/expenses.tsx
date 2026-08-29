@@ -91,6 +91,34 @@ function Expenses() {
           <DialogContent>
             <DialogHeader><DialogTitle>New Expense Entry</DialogTitle></DialogHeader>
             <div className="grid grid-cols-2 gap-3">
+              <div className="col-span-2 flex items-center gap-3 p-3 rounded-md border border-dashed">
+                {form.billImage ? (
+                  <img src={form.billImage} alt="Bill preview" className="h-14 w-14 rounded object-cover border" />
+                ) : (
+                  <Camera className="h-5 w-5 text-muted-foreground" />
+                )}
+                <div className="flex-1 text-xs text-muted-foreground">
+                  Bill ka photo lagaiye — details khud fill ho jayengi.
+                </div>
+                <Button type="button" variant="outline" size="sm" disabled={scanning} asChild>
+                  <label className="cursor-pointer">
+                    {scanning ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
+                    {scanning ? "Scanning..." : "Scan Bill Photo"}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      className="hidden"
+                      disabled={scanning}
+                      onChange={(e) => {
+                        const f = e.target.files?.[0];
+                        e.target.value = "";
+                        if (f) handleBillPhoto(f);
+                      }}
+                    />
+                  </label>
+                </Button>
+              </div>
               <div><Label>Date</Label><Input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} /></div>
               <div>
                 <Label>Category</Label>
