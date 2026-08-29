@@ -10,9 +10,11 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useStore, money, expenseTotal, type ExpenseCategory } from "@/lib/store";
-import { Plus, HardHat, Fuel, Building2, MoreHorizontal } from "lucide-react";
+import { useStore, money, expenseTotal, EMIRATES, type ExpenseCategory } from "@/lib/store";
+import { Plus, HardHat, Fuel, Building2, MoreHorizontal, Camera, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useServerFn } from "@tanstack/react-start";
+import { scanBill } from "@/lib/bill-scan.functions";
 
 export const Route = createFileRoute("/expenses")({ component: Expenses });
 
@@ -23,19 +25,56 @@ const catMeta: Record<ExpenseCategory, { icon: any; tone: any }> = {
   Other:    { icon: MoreHorizontal, tone: "default" },
 };
 
+const emptyForm = {
+  date: new Date().toISOString().slice(0, 10),
+  projectId: "GENERAL" as string,
+  vendor: "",
+  category: "Material" as ExpenseCategory,
+  refNo: "",
+  amount: 0,
+  vat: 0,
+  trnNo: "",
+  emirate: "",
+  billImage: "",
+};
+
 function Expenses() {
   const { expenses, invoices, settings, addExpense } = useStore();
   const [tab, setTab] = useState<"All" | ExpenseCategory>("All");
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({
-    date: new Date().toISOString().slice(0, 10),
-    projectId: "GENERAL" as string,
-    vendor: "",
-    category: "Material" as ExpenseCategory,
-    refNo: "",
-    amount: 0,
-    vat: 0,
-  });
+  const [scanning, setScanning] = useState(false);
+  const [form, setForm] = useState(emptyForm);
+  const runScan = useServerFn(scanBill);
+
+  const handleBillPhoto = async (file: File) => {
+    setScanning(true);
+    try {
+      const dataUrl: string = await new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(String(r.result));
+        r.onerror = () => reject(new Error("Could not read file"));
+        r.readAsDataURL(file);
+      });
+      const res = await runScan({ data: { imageDataUrl: dataUrl } });
+      setForm((f) => ({
+        ...f,
+        billImage: dataUrl,
+        vendor: res.vendor || f.vendor,
+        refNo: res.refNo || f.refNo,
+        date: res.date || f.date,
+        amount: res.amount || f.amount,
+        vat: res.vat || (res.amount ? (res.amount * settings.vatRate) / 100 : f.vat),
+        trnNo: res.trnNo || f.trnNo,
+        emirate: res.emirate || f.emirate,
+        category: res.category || f.category,
+      }));
+      toast.success("Bill scanned — details auto-filled");
+    } catch (err: any) {
+      toast.error(err?.message || "Could not read the bill");
+    } finally {
+      setScanning(false);
+    }
+  };
 
   const totals = (["Material","Petrol","Rent","Other"] as ExpenseCategory[]).reduce((acc, c) => {
     acc[c] = expenses.filter((e) => e.category === c).reduce((s, e) => s + expenseTotal(e), 0);
@@ -52,6 +91,34 @@ function Expenses() {
           <DialogContent>
             <DialogHeader><DialogTitle>New Expense Entry</DialogTitle></DialogHeader>
             <div className="grid grid-cols-2 gap-3">
+              <div className="col-span-2 flex items-center gap-3 p-3 rounded-md border border-dashed">
+                {form.billImage ? (
+                  <img src={form.billImage} alt="Bill preview" className="h-14 w-14 rounded object-cover border" />
+                ) : (
+                  <Camera className="h-5 w-5 text-muted-foreground" />
+                )}
+                <div className="flex-1 text-xs text-muted-foreground">
+                  Bill ka photo lagaiye — details khud fill ho jayengi.
+                </div>
+                <Button type="button" variant="outline" size="sm" disabled={scanning} asChild>
+                  <label className="cursor-pointer">
+                    {scanning ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
+                    {scanning ? "Scanning..." : "Scan Bill Photo"}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      className="hidden"
+                      disabled={scanning}
+                      onChange={(e) => {
+                        const f = e.target.files?.[0];
+                        e.target.value = "";
+                        if (f) handleBillPhoto(f);
+                      }}
+                    />
+                  </label>
+                </Button>
+              </div>
               <div><Label>Date</Label><Input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} /></div>
               <div>
                 <Label>Category</Label>
@@ -76,6 +143,24 @@ function Expenses() {
               </div>
               <div><Label>Vendor</Label><Input value={form.vendor} onChange={(e) => setForm({ ...form, vendor: e.target.value })} /></div>
               <div><Label>Invoice / Receipt Ref</Label><Input value={form.refNo} onChange={(e) => setForm({ ...form, refNo: e.target.value })} /></div>
+              <div>
+                <Label>Vendor TRN No</Label>
+                <Input
+                  value={form.trnNo}
+                  onChange={(e) => setForm({ ...form, trnNo: e.target.value })}
+                  placeholder="Enter 16 digit number"
+                />
+                <p className="text-xs text-muted-foreground mt-1">Enter 16 digit number (dashes optional)</p>
+              </div>
+              <div>
+                <Label>Emirate / State</Label>
+                <Select value={form.emirate || undefined} onValueChange={(v) => setForm({ ...form, emirate: v })}>
+                  <SelectTrigger><SelectValue placeholder="Select emirate" /></SelectTrigger>
+                  <SelectContent>
+                    {EMIRATES.map((em) => <SelectItem key={em} value={em}>{em}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
               <div><Label>Amount (excl. VAT)</Label><Input type="number" value={form.amount} onChange={(e) => setForm({ ...form, amount: +e.target.value, vat: +(e.target.value) * settings.vatRate / 100 })} /></div>
               <div><Label>VAT Paid ({settings.vatRate}%)</Label><Input type="number" value={form.vat} onChange={(e) => setForm({ ...form, vat: +e.target.value })} /></div>
               <div className="col-span-2 p-3 rounded-md bg-muted text-sm flex justify-between">
@@ -87,7 +172,7 @@ function Expenses() {
               <Button onClick={() => {
                 if (!form.vendor || !form.amount) return toast.error("Vendor & amount required");
                 addExpense(form); toast.success("Expense logged"); setOpen(false);
-                setForm({ ...form, vendor: "", refNo: "", amount: 0, vat: 0 });
+                setForm({ ...emptyForm, date: form.date, projectId: form.projectId, category: form.category });
               }}>Save</Button>
             </DialogFooter>
           </DialogContent>
@@ -118,6 +203,8 @@ function Expenses() {
                       <th className="px-4 py-3 text-left">Date</th>
                       <th className="px-4 py-3 text-left">Project</th>
                       <th className="px-4 py-3 text-left">Vendor</th>
+                      <th className="px-4 py-3 text-left">TRN No</th>
+                      <th className="px-4 py-3 text-left">Emirate</th>
                       <th className="px-4 py-3 text-left">Category</th>
                       <th className="px-4 py-3 text-left">Ref</th>
                       <th className="px-4 py-3 text-right">Amount</th>
@@ -134,6 +221,8 @@ function Expenses() {
                           <td className="px-4 py-3">{e.date}</td>
                           <td className="px-4 py-3">{proj?.projectName ?? "General / Overhead"}</td>
                           <td className="px-4 py-3">{e.vendor}</td>
+                          <td className="px-4 py-3 font-mono text-xs">{e.trnNo || "—"}</td>
+                          <td className="px-4 py-3">{e.emirate || "—"}</td>
                           <td className="px-4 py-3">
                             <span className="text-xs px-2 py-1 rounded bg-primary/10 text-primary font-medium">{e.category}</span>
                           </td>

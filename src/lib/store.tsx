@@ -70,7 +70,20 @@ export interface Expense {
   refNo: string;
   amount: number;
   vat: number;
+  trnNo?: string;
+  emirate?: string;
+  billImage?: string;
 }
+
+export const EMIRATES = [
+  "Abu Dhabi",
+  "Dubai",
+  "Sharjah",
+  "Ajman",
+  "Umm Al Quwain",
+  "Ras Al Khaimah",
+  "Fujairah",
+] as const;
 
 export interface Settings {
   companyName: string;
