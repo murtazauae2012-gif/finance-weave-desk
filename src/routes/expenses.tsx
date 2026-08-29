@@ -10,9 +10,11 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useStore, money, expenseTotal, type ExpenseCategory } from "@/lib/store";
-import { Plus, HardHat, Fuel, Building2, MoreHorizontal } from "lucide-react";
+import { useStore, money, expenseTotal, EMIRATES, type ExpenseCategory } from "@/lib/store";
+import { Plus, HardHat, Fuel, Building2, MoreHorizontal, Camera, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useServerFn } from "@tanstack/react-start";
+import { scanBill } from "@/lib/bill-scan.functions";
 
 export const Route = createFileRoute("/expenses")({ component: Expenses });
 
