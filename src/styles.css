@@ -168,8 +168,9 @@
     background: white !important;
   }
 
-  /* Hide all app UI (sidebar, dialog chrome, buttons) */
+  /* Hide all app UI completely so the sheet starts at the top of page 1 */
   .no-print { display: none !important; }
+  body > *:not(:has(.print-sheet)) { display: none !important; }
   body * { visibility: hidden !important; }
 
   .print-dialog, .print-dialog *,
