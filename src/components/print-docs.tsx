@@ -502,7 +502,7 @@ export function PrintStatement({ client }: { client: Client }) {
 export function DocumentDialog({ open, onClose, children }: { open: boolean; onClose: () => void; children: ReactNode }) {
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-[220mm] max-h-[95vh] overflow-y-auto p-4 bg-neutral-100">
+      <DialogContent className="print-dialog max-w-[220mm] max-h-[95vh] overflow-y-auto p-4 bg-neutral-100">
         {children}
         <DialogFooter className="no-print sticky bottom-0 bg-neutral-100 pt-2">
           <Button variant="outline" onClick={onClose}><X className="h-4 w-4" /> Close</Button>
