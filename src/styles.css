@@ -191,6 +191,8 @@
     box-shadow: none !important;
     background: white !important;
     display: block !important;
+    /* Tailwind v4 translate utility uses the standalone `translate` property */
+    translate: 0 0 !important;
   }
 
   .print-sheet {
