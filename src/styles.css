@@ -180,6 +180,8 @@
   .print-dialog {
     position: static !important;
     transform: none !important;
+    translate: none !important;
+    scale: none !important;
     inset: auto !important;
     width: 100% !important;
     max-width: 100% !important;
