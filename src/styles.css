@@ -160,6 +160,7 @@
 /* Print / PDF export: hide app UI and render only the .print-sheet (A4) */
 @media print {
   @page { size: A4; margin: 12mm; }
+  @page statement-landscape { size: A4 landscape; margin: 12mm; }
 
   html, body {
     width: 100% !important;
@@ -210,6 +211,10 @@
     color: black !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+  }
+
+  .print-sheet-landscape {
+    page: statement-landscape;
   }
 
   .print-sheet table,
