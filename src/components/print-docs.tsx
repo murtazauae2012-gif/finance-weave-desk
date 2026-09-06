@@ -189,7 +189,7 @@ export function PrintQuotation({ quotation }: { quotation: Quotation }) {
   const { clients, settings } = useStore();
   const client = clients.find((c) => c.id === quotation.clientId);
   return (
-    <Sheet landscape>
+    <Sheet>
       <CompanyHeader subtitle="QUOTATION" />
 
       <div className="mb-2 text-xs font-bold uppercase" style={{ color: "#0f766e" }}>Client &amp; Project Details</div>
@@ -415,7 +415,7 @@ export function PrintStatement({ client }: { client: Client }) {
   const outstanding = totalBilled - totalPaid;
 
   return (
-    <Sheet>
+    <Sheet landscape>
       <CompanyHeader subtitle="STATEMENT OF CUSTOMER ACCOUNT" />
 
       <div className="mb-2 text-xs font-bold uppercase" style={{ color: "#0f766e" }}>Customer Details</div>
