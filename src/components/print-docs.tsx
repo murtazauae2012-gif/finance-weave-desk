@@ -10,11 +10,11 @@ import {
 
 /* ---------- shared sheet chrome ---------- */
 
-function Sheet({ children }: { children: ReactNode }) {
+function Sheet({ children, landscape = false }: { children: ReactNode; landscape?: boolean }) {
   return (
     <div
-      className="print-sheet bg-white text-black mx-auto"
-      style={{ width: "210mm", maxWidth: "100%", minHeight: "297mm", padding: "14mm", fontFamily: "'Helvetica Neue', Arial, sans-serif" }}
+      className={`print-sheet bg-white text-black mx-auto${landscape ? " print-sheet-landscape" : ""}`}
+      style={{ width: landscape ? "297mm" : "210mm", maxWidth: "100%", minHeight: landscape ? "210mm" : "297mm", padding: "14mm", fontFamily: "'Helvetica Neue', Arial, sans-serif" }}
     >
       {children}
     </div>
@@ -43,6 +43,31 @@ const cellHead = "px-2 py-2 text-xs font-bold uppercase tracking-wide text-white
 const cellBody = "px-2 py-1.5 text-[13px] border";
 const headBg = { background: "#0f766e" };
 const totalBg = { background: "#e6f4f2" };
+
+const numberOnly = (value: number) =>
+  new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value || 0);
+
+const SMALL_NUMBERS = [
+  "Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten",
+  "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen",
+];
+const TENS = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+
+function wholeNumberToWords(value: number): string {
+  if (value < 20) return SMALL_NUMBERS[value];
+  if (value < 100) return `${TENS[Math.floor(value / 10)]}${value % 10 ? ` ${SMALL_NUMBERS[value % 10]}` : ""}`;
+  if (value < 1_000) return `${SMALL_NUMBERS[Math.floor(value / 100)]} Hundred${value % 100 ? ` ${wholeNumberToWords(value % 100)}` : ""}`;
+  if (value < 1_000_000) return `${wholeNumberToWords(Math.floor(value / 1_000))} Thousand${value % 1_000 ? ` ${wholeNumberToWords(value % 1_000)}` : ""}`;
+  if (value < 1_000_000_000) return `${wholeNumberToWords(Math.floor(value / 1_000_000))} Million${value % 1_000_000 ? ` ${wholeNumberToWords(value % 1_000_000)}` : ""}`;
+  return `${wholeNumberToWords(Math.floor(value / 1_000_000_000))} Billion${value % 1_000_000_000 ? ` ${wholeNumberToWords(value % 1_000_000_000)}` : ""}`;
+}
+
+function dirhamsInWords(value: number): string {
+  const rounded = Math.round((value || 0) * 100);
+  const dirhams = Math.floor(rounded / 100);
+  const fils = rounded % 100;
+  return `${wholeNumberToWords(dirhams)} Dirhams${fils ? ` And ${wholeNumberToWords(fils)} Fils` : ""} Only`;
+}
 
 function SignatureBlock({ left, right }: { left: string; right: string }) {
   return (
@@ -96,60 +121,52 @@ export function PrintInvoice({ invoice }: { invoice: Invoice }) {
       </table>
 
       <table className="w-full border-collapse">
+        <colgroup>
+          <col style={{ width: "5%" }} />
+          <col style={{ width: "59%" }} />
+          <col style={{ width: "8%" }} />
+          <col style={{ width: "13%" }} />
+          <col style={{ width: "15%" }} />
+        </colgroup>
         <thead>
           <tr style={headBg}>
-            <th className={cellHead} style={{ width: "6%" }}>#</th>
+            <th className={cellHead}>#</th>
             <th className={cellHead + " text-left"}>Description &amp; Specifications</th>
-            <th className={cellHead} style={{ width: "8%" }}>Qty</th>
-            <th className={cellHead} style={{ width: "10%" }}>Unit</th>
-            <th className={cellHead + " text-right"} style={{ width: "14%" }}>Unit Price</th>
-            <th className={cellHead + " text-right"} style={{ width: "16%" }}>Total Amount</th>
+            <th className={cellHead}>Qty</th>
+            <th className={cellHead + " text-right"}>Unit Price</th>
+            <th className={cellHead + " text-right"}>Total</th>
           </tr>
         </thead>
         <tbody>
           {invoice.items.map((r, i) => (
             <tr key={i}>
               <td className={cellBody + " text-center"}>{i + 1}</td>
-              <td className={cellBody + " w-2/5 text-left whitespace-normal break-words max-w-xs"}>{r.description}</td>
+              <td className={cellBody + " text-left whitespace-normal break-words"}>{r.description}</td>
               <td className={cellBody + " text-center tabular-nums"}>{r.qty}</td>
-              <td className={cellBody + " text-center"}>{r.unit}</td>
-              <td className={cellBody + " text-right tabular-nums"}>{money(r.unitPrice, settings.currency)}</td>
-              <td className={cellBody + " text-right tabular-nums"}>{money(r.qty * r.unitPrice, settings.currency)}</td>
+              <td className={cellBody + " text-right tabular-nums"}>{numberOnly(r.unitPrice)}</td>
+              <td className={cellBody + " text-right tabular-nums"}>{numberOnly(r.qty * r.unitPrice)}</td>
             </tr>
           ))}
           <tr>
-            <td colSpan={4} className="border-0"></td>
+            <td colSpan={3} className="border-0"></td>
             <td className={cellBody + " text-right font-semibold"}>Subtotal:</td>
-            <td className={cellBody + " text-right tabular-nums"}>{money(invoiceSubtotal(invoice), settings.currency)}</td>
+            <td className={cellBody + " text-right tabular-nums"}>{numberOnly(invoiceSubtotal(invoice))}</td>
           </tr>
           <tr>
-            <td colSpan={4} className="border-0"></td>
+            <td colSpan={3} className="border-0"></td>
             <td className={cellBody + " text-right font-semibold"}>VAT ({invoice.taxRate}%):</td>
-            <td className={cellBody + " text-right tabular-nums"}>{money(invoiceTax(invoice), settings.currency)}</td>
+            <td className={cellBody + " text-right tabular-nums"}>{numberOnly(invoiceTax(invoice))}</td>
           </tr>
           <tr style={totalBg}>
-            <td colSpan={4} className="border-0"></td>
+            <td colSpan={3} className="border-0"></td>
             <td className={cellBody + " text-right font-bold uppercase"}>Grand Total:</td>
-            <td className={cellBody + " text-right tabular-nums font-bold"}>{money(invoiceTotal(invoice), settings.currency)}</td>
+            <td className={cellBody + " text-right tabular-nums font-bold"}>{numberOnly(invoiceTotal(invoice))}</td>
           </tr>
-          {invoice.payments.length > 0 && (
-            <>
-              <tr>
-                <td colSpan={4} className="border-0"></td>
-                <td className={cellBody + " text-right"}>Paid:</td>
-                <td className={cellBody + " text-right tabular-nums"} style={{ color: "#0f766e" }}>
-                  {money(invoicePaid(invoice), settings.currency)}
-                </td>
-              </tr>
-              <tr>
-                <td colSpan={4} className="border-0"></td>
-                <td className={cellBody + " text-right font-semibold"}>Balance Due:</td>
-                <td className={cellBody + " text-right tabular-nums font-semibold"}>
-                  {money(invoiceOutstanding(invoice), settings.currency)}
-                </td>
-              </tr>
-            </>
-          )}
+          <tr className="avoid-break">
+            <td colSpan={5} className={cellBody + " text-left font-semibold italic"}>
+              Amount in words: {dirhamsInWords(invoiceTotal(invoice))}
+            </td>
+          </tr>
         </tbody>
       </table>
 
@@ -398,7 +415,7 @@ export function PrintStatement({ client }: { client: Client }) {
   const outstanding = totalBilled - totalPaid;
 
   return (
-    <Sheet>
+    <Sheet landscape>
       <CompanyHeader subtitle="STATEMENT OF CUSTOMER ACCOUNT" />
 
       <div className="mb-2 text-xs font-bold uppercase" style={{ color: "#0f766e" }}>Customer Details</div>
