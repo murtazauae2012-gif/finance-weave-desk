@@ -157,6 +157,14 @@
   }
 }
 
+/* Letterhead mode: hide digital header, push content below pre-printed logo */
+.print-dialog.letterhead-mode .digital-header {
+  display: none !important;
+}
+.print-dialog.letterhead-mode .print-sheet {
+  padding-top: var(--letterhead-top, 45mm) !important;
+}
+
 /* Print / PDF export: hide app UI and render only the .print-sheet (A4) */
 @media print {
   @page { size: A4; margin: 12mm; }
