@@ -517,14 +517,42 @@ export function PrintStatement({ client }: { client: Client }) {
 /* ---------- Dialog wrapper ---------- */
 
 export function DocumentDialog({ open, onClose, children }: { open: boolean; onClose: () => void; children: ReactNode }) {
+  const [letterhead, setLetterhead] = useState(false);
+  const [topMargin, setTopMargin] = useState(45);
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="print-dialog max-w-[220mm] max-h-[95vh] overflow-y-auto p-4 bg-neutral-100">
+      <DialogContent
+        className={`print-dialog max-w-[220mm] max-h-[95vh] overflow-y-auto p-4 bg-neutral-100${letterhead ? " letterhead-mode" : ""}`}
+        style={{ ["--letterhead-top" as string]: `${topMargin}mm` }}
+      >
         {children}
-        <DialogFooter className="no-print sticky bottom-0 bg-neutral-100 pt-2">
-          <Button variant="outline" onClick={onClose}><X className="h-4 w-4" /> Close</Button>
-          <Button onClick={() => window.print()}><Printer className="h-4 w-4" /> Print / Save PDF</Button>
-        </DialogFooter>
+        <div className="no-print sticky bottom-0 bg-neutral-100 pt-2 space-y-3">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-md border border-border bg-card p-3 text-sm">
+            <label className="flex items-center gap-2 cursor-pointer font-medium">
+              <Checkbox checked={letterhead} onCheckedChange={(v) => setLetterhead(v === true)} />
+              Print on Physical Letterhead
+            </label>
+            {letterhead && (
+              <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                Top margin (mm)
+                <Input
+                  type="number"
+                  min={0}
+                  max={120}
+                  value={topMargin}
+                  onChange={(e) => setTopMargin(Number(e.target.value) || 0)}
+                  className="h-8 w-20"
+                />
+                <span className="hidden sm:inline">Space for your paper's printed logo — the company header is hidden.</span>
+              </label>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={onClose}><X className="h-4 w-4" /> Close</Button>
+            <Button onClick={() => window.print()}><Printer className="h-4 w-4" /> Print / Save PDF</Button>
+          </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );
