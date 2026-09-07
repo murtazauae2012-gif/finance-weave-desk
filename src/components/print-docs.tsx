@@ -1,6 +1,8 @@
-import { type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import { Printer, X } from "lucide-react";
 import {
   useStore, money, invoiceSubtotal, invoiceTax, invoiceTotal,
@@ -24,7 +26,7 @@ function Sheet({ children, landscape = false }: { children: ReactNode; landscape
 function CompanyHeader({ subtitle }: { subtitle: string }) {
   const { settings } = useStore();
   return (
-    <div className="text-center border-b-2 pb-3 mb-4" style={{ borderColor: "#0f766e" }}>
+    <div className="digital-header text-center border-b-2 pb-3 mb-4" style={{ borderColor: "#0f766e" }}>
       <div className="text-2xl font-bold tracking-wide uppercase" style={{ color: "#0f766e" }}>
         {settings.companyName}
       </div>
