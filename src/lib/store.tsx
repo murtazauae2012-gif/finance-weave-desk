@@ -305,8 +305,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     addPayment: (invoiceId, p) =>
       setInvoices((prev) => prev.map((iv) => iv.id === invoiceId ? { ...iv, payments: [...iv.payments, p] } : iv)),
     addQuotation: (q) => {
-      const no = `${todayCode()}-QT${pad(quotations.length + 1)}`;
-      setQuotations((prev) => [...prev, { ...q, id: `QT-${prev.length + 1}`, no }]);
+      const no = settings.nextQuotationNo;
+      setQuotations((prev) => [...prev, { ...q, id: `QT-${Date.now()}`, no }]);
+      setSettings((prev) => ({ ...prev, nextQuotationNo: nextSequence(prev.nextQuotationNo) }));
     },
     updateQuotation: (id, patch) =>
       setQuotations((prev) => prev.map((q) => (q.id === id ? { ...q, ...patch } : q))),
