@@ -188,7 +188,7 @@ export function PrintInvoice({ invoice }: { invoice: Invoice }) {
 /* ---------- QUOTATION ---------- */
 
 export function PrintQuotation({ quotation }: { quotation: Quotation }) {
-  const { clients, settings } = useStore();
+  const { clients } = useStore();
   const client = clients.find((c) => c.id === quotation.clientId);
   return (
     <Sheet>
