@@ -49,6 +49,8 @@ const totalBg = { background: "#e6f4f2" };
 const numberOnly = (value: number) =>
   new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value || 0);
 
+const aed = (value: number) => `AED ${numberOnly(value)}`;
+
 const SMALL_NUMBERS = [
   "Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten",
   "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen",
@@ -136,7 +138,7 @@ export function PrintInvoice({ invoice }: { invoice: Invoice }) {
             <th className={cellHead + " text-left"}>Description &amp; Specifications</th>
             <th className={cellHead}>Qty</th>
             <th className={cellHead + " text-right"}>Unit Price</th>
-            <th className={cellHead + " text-right"}>Total</th>
+            <th className={cellHead + " text-right"}>Total Amount</th>
           </tr>
         </thead>
         <tbody>
@@ -145,19 +147,19 @@ export function PrintInvoice({ invoice }: { invoice: Invoice }) {
               <td className={cellBody + " text-center"}>{i + 1}</td>
               <td className={cellBody + " text-left whitespace-normal break-words"}>{r.description}</td>
               <td className={cellBody + " text-center tabular-nums"}>{r.qty}</td>
-              <td className={cellBody + " text-right tabular-nums"}>{numberOnly(r.unitPrice)}</td>
-              <td className={cellBody + " text-right tabular-nums"}>{numberOnly(r.qty * r.unitPrice)}</td>
+              <td className={cellBody + " text-right tabular-nums"}>{aed(r.unitPrice)}</td>
+              <td className={cellBody + " text-right tabular-nums"}>{aed(r.qty * r.unitPrice)}</td>
             </tr>
           ))}
           <tr>
             <td colSpan={3} className="border-0"></td>
             <td className={cellBody + " text-right font-semibold"}>Subtotal:</td>
-            <td className={cellBody + " text-right tabular-nums"}>{numberOnly(invoiceSubtotal(invoice))}</td>
+            <td className={cellBody + " text-right tabular-nums"}>{aed(invoiceSubtotal(invoice))}</td>
           </tr>
           <tr>
             <td colSpan={3} className="border-0"></td>
             <td className={cellBody + " text-right font-semibold"}>VAT ({invoice.taxRate}%):</td>
-            <td className={cellBody + " text-right tabular-nums"}>{numberOnly(invoiceTax(invoice))}</td>
+            <td className={cellBody + " text-right tabular-nums"}>{aed(invoiceTax(invoice))}</td>
           </tr>
           <tr style={totalBg} className="avoid-break">
             <td colSpan={1} className="border-0"></td>
@@ -165,7 +167,7 @@ export function PrintInvoice({ invoice }: { invoice: Invoice }) {
               {dirhamsInWords(invoiceTotal(invoice))}
             </td>
             <td className={cellBody + " text-right font-bold uppercase"}>Grand Total:</td>
-            <td className={cellBody + " text-right tabular-nums font-bold"}>{numberOnly(invoiceTotal(invoice))}</td>
+            <td className={cellBody + " text-right tabular-nums font-bold"}>{aed(invoiceTotal(invoice))}</td>
           </tr>
         </tbody>
       </table>
@@ -186,7 +188,7 @@ export function PrintInvoice({ invoice }: { invoice: Invoice }) {
 /* ---------- QUOTATION ---------- */
 
 export function PrintQuotation({ quotation }: { quotation: Quotation }) {
-  const { clients, settings } = useStore();
+  const { clients } = useStore();
   const client = clients.find((c) => c.id === quotation.clientId);
   return (
     <Sheet>
@@ -221,41 +223,49 @@ export function PrintQuotation({ quotation }: { quotation: Quotation }) {
       </table>
 
       <table className="w-full border-collapse">
+        <colgroup>
+          <col style={{ width: "5%" }} />
+          <col style={{ width: "59%" }} />
+          <col style={{ width: "8%" }} />
+          <col style={{ width: "13%" }} />
+          <col style={{ width: "15%" }} />
+        </colgroup>
         <thead>
           <tr style={headBg}>
-            <th className={cellHead} style={{ width: "6%" }}>#</th>
+            <th className={cellHead}>#</th>
             <th className={cellHead + " text-left"}>Description &amp; Specifications</th>
-            <th className={cellHead} style={{ width: "8%" }}>Qty</th>
-            <th className={cellHead} style={{ width: "10%" }}>Unit</th>
-            <th className={cellHead + " text-right"} style={{ width: "14%" }}>Unit Price</th>
-            <th className={cellHead + " text-right"} style={{ width: "16%" }}>Total Amount</th>
+            <th className={cellHead}>Qty</th>
+            <th className={cellHead + " text-right"}>Unit Price</th>
+            <th className={cellHead + " text-right"}>Total Amount</th>
           </tr>
         </thead>
         <tbody>
           {quotation.items.map((r, i) => (
             <tr key={i}>
               <td className={cellBody + " text-center"}>{i + 1}</td>
-              <td className={cellBody + " w-2/5 text-left whitespace-normal break-words max-w-xs"}>{r.description}</td>
+              <td className={cellBody + " text-left whitespace-normal break-words"}>{r.description}</td>
               <td className={cellBody + " text-center tabular-nums"}>{r.qty}</td>
-              <td className={cellBody + " text-center"}>{r.unit}</td>
-              <td className={cellBody + " text-right tabular-nums"}>{money(r.unitPrice, settings.currency)}</td>
-              <td className={cellBody + " text-right tabular-nums"}>{money(r.qty * r.unitPrice, settings.currency)}</td>
+              <td className={cellBody + " text-right tabular-nums"}>{aed(r.unitPrice)}</td>
+              <td className={cellBody + " text-right tabular-nums"}>{aed(r.qty * r.unitPrice)}</td>
             </tr>
           ))}
           <tr>
-            <td colSpan={4} className="border-0"></td>
+            <td colSpan={3} className="border-0"></td>
             <td className={cellBody + " text-right font-semibold"}>Subtotal:</td>
-            <td className={cellBody + " text-right tabular-nums"}>{money(quoteSubtotal(quotation), settings.currency)}</td>
+            <td className={cellBody + " text-right tabular-nums"}>{aed(quoteSubtotal(quotation))}</td>
           </tr>
           <tr>
-            <td colSpan={4} className="border-0"></td>
+            <td colSpan={3} className="border-0"></td>
             <td className={cellBody + " text-right font-semibold"}>VAT ({quotation.taxRate}%):</td>
-            <td className={cellBody + " text-right tabular-nums"}>{money(quoteSubtotal(quotation) * quotation.taxRate / 100, settings.currency)}</td>
+            <td className={cellBody + " text-right tabular-nums"}>{aed(quoteSubtotal(quotation) * quotation.taxRate / 100)}</td>
           </tr>
-          <tr style={totalBg}>
-            <td colSpan={4} className="border-0"></td>
+          <tr style={totalBg} className="avoid-break">
+            <td colSpan={1} className="border-0"></td>
+            <td colSpan={2} className="px-2 py-1.5 text-[11px] font-semibold italic text-left whitespace-normal break-words border-0">
+              {dirhamsInWords(quoteTotal(quotation))}
+            </td>
             <td className={cellBody + " text-right font-bold uppercase"}>Grand Total:</td>
-            <td className={cellBody + " text-right tabular-nums font-bold"}>{money(quoteTotal(quotation), settings.currency)}</td>
+            <td className={cellBody + " text-right tabular-nums font-bold"}>{aed(quoteTotal(quotation))}</td>
           </tr>
         </tbody>
       </table>

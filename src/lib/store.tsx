@@ -95,7 +95,18 @@ export interface Settings {
   vatRate: number;
   bankDetails: string;
   logo: string;
+  nextInvoiceNo: string;
+  nextQuotationNo: string;
 }
+
+/** Increments the trailing digit group of a number format, preserving padding. */
+export const nextSequence = (value: string): string => {
+  const m = value.match(/^(.*?)(\d+)(\D*)$/);
+  if (!m) return `${value}-2`;
+  const [, prefix, digits, suffix] = m;
+  const incremented = String(Number(digits) + 1).padStart(digits.length, "0");
+  return `${prefix}${incremented}${suffix}`;
+};
 
 // ------- helpers -------
 export const money = (n: number, cur = "AED") =>
@@ -234,6 +245,8 @@ const seedSettings: Settings = {
   vatRate: 5,
   bankDetails: "Emirates NBD  •  A/C: 1023 4455 6677  •  IBAN: AE12 0260 0010 2344 5566 778",
   logo: "",
+  nextInvoiceNo: "INV-0004",
+  nextQuotationNo: "QTN-0005",
 };
 
 // ------- context -------
@@ -261,11 +274,6 @@ interface Store {
 
 const StoreCtx = createContext<Store | null>(null);
 
-const pad = (n: number) => String(n).padStart(2, "0");
-const todayCode = () => {
-  const d = new Date();
-  return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}`;
-};
 
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [clients, setClients] = useState(seedClients);
@@ -280,9 +288,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     addClient: (c) => setClients((prev) => [...prev, { ...c, id: `CL-${String(prev.length + 1).padStart(3, "0")}` }]),
     addProduct: (p) => setProducts((prev) => [...prev, { ...p, id: `P-${String(prev.length + 1).padStart(3, "0")}` }]),
     addInvoice: (i) => {
-      const no = `${todayCode()}-INV${pad(invoices.length + 1)}`;
-      const inv: Invoice = { ...i, id: `IV-${invoices.length + 1}`, no };
+      const no = settings.nextInvoiceNo;
+      const inv: Invoice = { ...i, id: `IV-${Date.now()}`, no };
       setInvoices((prev) => [...prev, inv]);
+      setSettings((prev) => ({ ...prev, nextInvoiceNo: nextSequence(prev.nextInvoiceNo) }));
       return inv;
     },
     updateInvoice: (id, patch) =>
@@ -291,8 +300,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     addPayment: (invoiceId, p) =>
       setInvoices((prev) => prev.map((iv) => iv.id === invoiceId ? { ...iv, payments: [...iv.payments, p] } : iv)),
     addQuotation: (q) => {
-      const no = `${todayCode()}-QT${pad(quotations.length + 1)}`;
-      setQuotations((prev) => [...prev, { ...q, id: `QT-${prev.length + 1}`, no }]);
+      const no = settings.nextQuotationNo;
+      setQuotations((prev) => [...prev, { ...q, id: `QT-${Date.now()}`, no }]);
+      setSettings((prev) => ({ ...prev, nextQuotationNo: nextSequence(prev.nextQuotationNo) }));
     },
     updateQuotation: (id, patch) =>
       setQuotations((prev) => prev.map((q) => (q.id === id ? { ...q, ...patch } : q))),
@@ -302,13 +312,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     convertQuoteToInvoice: (id) => {
       const q = quotations.find((x) => x.id === id);
       if (!q) return null;
-      const no = `${todayCode()}-INV${pad(invoices.length + 1)}`;
+      const no = settings.nextInvoiceNo;
       const inv: Invoice = {
-        id: `IV-${invoices.length + 1}`, no, date: new Date().toISOString().slice(0, 10),
+        id: `IV-${Date.now()}`, no, date: new Date().toISOString().slice(0, 10),
         clientId: q.clientId, projectName: q.projectName, lpoNo: "", lpoValue: quoteTotal(q),
         items: q.items, taxRate: q.taxRate, payments: [],
       };
       setInvoices((prev) => [...prev, inv]);
+      setSettings((prev) => ({ ...prev, nextInvoiceNo: nextSequence(prev.nextInvoiceNo) }));
       return inv;
     },
     addExpense: (e) => setExpenses((prev) => [...prev, { ...e, id: `EX-${String(prev.length + 1).padStart(3, "0")}` }]),

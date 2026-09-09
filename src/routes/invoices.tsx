@@ -209,7 +209,7 @@ function NewInvoiceDialog({ onCreate, editing, onClose }: {
           <div className="space-y-2">
             {items.map((r, i) => (
               <div key={i} className="grid grid-cols-12 gap-2 items-center">
-                <div className="col-span-5">
+                <div className="col-span-6">
                   <div className="flex flex-col gap-1">
                     <Input
                       value={r.description}
@@ -232,8 +232,7 @@ function NewInvoiceDialog({ onCreate, editing, onClose }: {
                   </div>
                 </div>
                 <Input className="col-span-2" type="number" value={r.qty} onChange={(e) => update(i, { qty: +e.target.value })} placeholder="Qty" />
-                <Input className="col-span-2" value={r.unit} onChange={(e) => update(i, { unit: e.target.value })} placeholder="Unit" />
-                <Input className="col-span-2" type="number" value={r.unitPrice} onChange={(e) => update(i, { unitPrice: +e.target.value })} placeholder="Price" />
+                <Input className="col-span-3" type="number" value={r.unitPrice} onChange={(e) => update(i, { unitPrice: +e.target.value })} placeholder="Unit Price" />
                 <Button size="icon" variant="ghost" onClick={() => setItems(items.filter((_, x) => x !== i))}><Trash2 className="h-4 w-4" /></Button>
               </div>
             ))}

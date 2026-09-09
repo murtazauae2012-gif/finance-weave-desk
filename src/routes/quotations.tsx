@@ -196,7 +196,7 @@ function QuotationFormDialog({ onSubmit, editing, onClose }: {
           </div>
           {items.map((r, i) => (
             <div key={i} className="grid grid-cols-12 gap-2 mb-2 items-start">
-              <div className="col-span-5 flex flex-col gap-1">
+              <div className="col-span-6 flex flex-col gap-1">
                 <Input
                   value={r.description}
                   onChange={(e) => update(i, { description: e.target.value })}
@@ -216,9 +216,8 @@ function QuotationFormDialog({ onSubmit, editing, onClose }: {
                   </SelectContent>
                 </Select>
               </div>
-              <Input className="col-span-2" type="number" value={r.qty} onChange={(e) => update(i, { qty: +e.target.value })} />
-              <Input className="col-span-2" value={r.unit} onChange={(e) => update(i, { unit: e.target.value })} />
-              <Input className="col-span-2" type="number" value={r.unitPrice} onChange={(e) => update(i, { unitPrice: +e.target.value })} />
+              <Input className="col-span-2" type="number" value={r.qty} onChange={(e) => update(i, { qty: +e.target.value })} placeholder="Qty" />
+              <Input className="col-span-3" type="number" value={r.unitPrice} onChange={(e) => update(i, { unitPrice: +e.target.value })} placeholder="Unit Price" />
               <Button size="icon" variant="ghost" onClick={() => setItems(items.filter((_, x) => x !== i))}><Trash2 className="h-4 w-4" /></Button>
             </div>
           ))}
