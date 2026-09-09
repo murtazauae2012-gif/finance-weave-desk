@@ -317,13 +317,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     convertQuoteToInvoice: (id) => {
       const q = quotations.find((x) => x.id === id);
       if (!q) return null;
-      const no = `${todayCode()}-INV${pad(invoices.length + 1)}`;
+      const no = settings.nextInvoiceNo;
       const inv: Invoice = {
-        id: `IV-${invoices.length + 1}`, no, date: new Date().toISOString().slice(0, 10),
+        id: `IV-${Date.now()}`, no, date: new Date().toISOString().slice(0, 10),
         clientId: q.clientId, projectName: q.projectName, lpoNo: "", lpoValue: quoteTotal(q),
         items: q.items, taxRate: q.taxRate, payments: [],
       };
       setInvoices((prev) => [...prev, inv]);
+      setSettings((prev) => ({ ...prev, nextInvoiceNo: nextSequence(prev.nextInvoiceNo) }));
       return inv;
     },
     addExpense: (e) => setExpenses((prev) => [...prev, { ...e, id: `EX-${String(prev.length + 1).padStart(3, "0")}` }]),
