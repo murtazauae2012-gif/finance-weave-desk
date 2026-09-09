@@ -274,11 +274,6 @@ interface Store {
 
 const StoreCtx = createContext<Store | null>(null);
 
-const pad = (n: number) => String(n).padStart(2, "0");
-const todayCode = () => {
-  const d = new Date();
-  return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}`;
-};
 
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [clients, setClients] = useState(seedClients);
