@@ -95,7 +95,18 @@ export interface Settings {
   vatRate: number;
   bankDetails: string;
   logo: string;
+  nextInvoiceNo: string;
+  nextQuotationNo: string;
 }
+
+/** Increments the trailing digit group of a number format, preserving padding. */
+export const nextSequence = (value: string): string => {
+  const m = value.match(/^(.*?)(\d+)(\D*)$/);
+  if (!m) return `${value}-2`;
+  const [, prefix, digits, suffix] = m;
+  const incremented = String(Number(digits) + 1).padStart(digits.length, "0");
+  return `${prefix}${incremented}${suffix}`;
+};
 
 // ------- helpers -------
 export const money = (n: number, cur = "AED") =>
