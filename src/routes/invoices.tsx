@@ -209,7 +209,7 @@ function NewInvoiceDialog({ onCreate, editing, onClose }: {
           <div className="space-y-2">
             {items.map((r, i) => (
               <div key={i} className="grid grid-cols-12 gap-2 items-center">
-                <div className="col-span-5">
+                <div className="col-span-6">
                   <div className="flex flex-col gap-1">
                     <Input
                       value={r.description}
