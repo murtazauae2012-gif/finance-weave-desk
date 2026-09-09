@@ -51,6 +51,26 @@ function SettingsPage() {
         </Card>
 
         <Card>
+          <CardHeader><CardTitle className="text-base">Document Numbering</CardTitle></CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-xs text-muted-foreground">
+              Set the next number to be used. The trailing digits increase automatically each time a document is created
+              (e.g. QTN-0330 → QTN-0331, INV-0001 → INV-0002).
+            </p>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Starting / Next Quotation Number</Label>
+                <Input value={f.nextQuotationNo} onChange={(e) => setF({ ...f, nextQuotationNo: e.target.value })} placeholder="QTN-0330" />
+              </div>
+              <div>
+                <Label>Starting / Next Invoice Number</Label>
+                <Input value={f.nextInvoiceNo} onChange={(e) => setF({ ...f, nextInvoiceNo: e.target.value })} placeholder="INV-0001" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
           <CardHeader><CardTitle className="text-base">Bank Payment Details</CardTitle></CardHeader>
           <CardContent>
             <Label>Shown in invoice footers</Label>
