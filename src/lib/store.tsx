@@ -245,6 +245,8 @@ const seedSettings: Settings = {
   vatRate: 5,
   bankDetails: "Emirates NBD  •  A/C: 1023 4455 6677  •  IBAN: AE12 0260 0010 2344 5566 778",
   logo: "",
+  nextInvoiceNo: "INV-0004",
+  nextQuotationNo: "QTN-0005",
 };
 
 // ------- context -------
