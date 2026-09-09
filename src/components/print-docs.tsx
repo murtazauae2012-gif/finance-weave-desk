@@ -49,6 +49,8 @@ const totalBg = { background: "#e6f4f2" };
 const numberOnly = (value: number) =>
   new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value || 0);
 
+const aed = (value: number) => `AED ${numberOnly(value)}`;
+
 const SMALL_NUMBERS = [
   "Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten",
   "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen",
