@@ -138,7 +138,7 @@ export function PrintInvoice({ invoice }: { invoice: Invoice }) {
             <th className={cellHead + " text-left"}>Description &amp; Specifications</th>
             <th className={cellHead}>Qty</th>
             <th className={cellHead + " text-right"}>Unit Price</th>
-            <th className={cellHead + " text-right"}>Total</th>
+            <th className={cellHead + " text-right"}>Total Amount</th>
           </tr>
         </thead>
         <tbody>
@@ -147,19 +147,19 @@ export function PrintInvoice({ invoice }: { invoice: Invoice }) {
               <td className={cellBody + " text-center"}>{i + 1}</td>
               <td className={cellBody + " text-left whitespace-normal break-words"}>{r.description}</td>
               <td className={cellBody + " text-center tabular-nums"}>{r.qty}</td>
-              <td className={cellBody + " text-right tabular-nums"}>{numberOnly(r.unitPrice)}</td>
-              <td className={cellBody + " text-right tabular-nums"}>{numberOnly(r.qty * r.unitPrice)}</td>
+              <td className={cellBody + " text-right tabular-nums"}>{aed(r.unitPrice)}</td>
+              <td className={cellBody + " text-right tabular-nums"}>{aed(r.qty * r.unitPrice)}</td>
             </tr>
           ))}
           <tr>
             <td colSpan={3} className="border-0"></td>
             <td className={cellBody + " text-right font-semibold"}>Subtotal:</td>
-            <td className={cellBody + " text-right tabular-nums"}>{numberOnly(invoiceSubtotal(invoice))}</td>
+            <td className={cellBody + " text-right tabular-nums"}>{aed(invoiceSubtotal(invoice))}</td>
           </tr>
           <tr>
             <td colSpan={3} className="border-0"></td>
             <td className={cellBody + " text-right font-semibold"}>VAT ({invoice.taxRate}%):</td>
-            <td className={cellBody + " text-right tabular-nums"}>{numberOnly(invoiceTax(invoice))}</td>
+            <td className={cellBody + " text-right tabular-nums"}>{aed(invoiceTax(invoice))}</td>
           </tr>
           <tr style={totalBg} className="avoid-break">
             <td colSpan={1} className="border-0"></td>
@@ -167,7 +167,7 @@ export function PrintInvoice({ invoice }: { invoice: Invoice }) {
               {dirhamsInWords(invoiceTotal(invoice))}
             </td>
             <td className={cellBody + " text-right font-bold uppercase"}>Grand Total:</td>
-            <td className={cellBody + " text-right tabular-nums font-bold"}>{numberOnly(invoiceTotal(invoice))}</td>
+            <td className={cellBody + " text-right tabular-nums font-bold"}>{aed(invoiceTotal(invoice))}</td>
           </tr>
         </tbody>
       </table>
