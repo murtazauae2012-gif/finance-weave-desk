@@ -293,9 +293,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     addClient: (c) => setClients((prev) => [...prev, { ...c, id: `CL-${String(prev.length + 1).padStart(3, "0")}` }]),
     addProduct: (p) => setProducts((prev) => [...prev, { ...p, id: `P-${String(prev.length + 1).padStart(3, "0")}` }]),
     addInvoice: (i) => {
-      const no = `${todayCode()}-INV${pad(invoices.length + 1)}`;
-      const inv: Invoice = { ...i, id: `IV-${invoices.length + 1}`, no };
+      const no = settings.nextInvoiceNo;
+      const inv: Invoice = { ...i, id: `IV-${Date.now()}`, no };
       setInvoices((prev) => [...prev, inv]);
+      setSettings((prev) => ({ ...prev, nextInvoiceNo: nextSequence(prev.nextInvoiceNo) }));
       return inv;
     },
     updateInvoice: (id, patch) =>
