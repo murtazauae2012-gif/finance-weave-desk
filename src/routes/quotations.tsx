@@ -5,13 +5,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
+  Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { useStore, money, quoteTotal, type LineItem, type QuoteStatus, type Quotation } from "@/lib/store";
-import { Plus, Trash2, ArrowRightCircle, Eye, Pencil } from "lucide-react";
+import { Plus, Trash2, ArrowRightCircle, Eye, Pencil, FileText } from "lucide-react";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -102,7 +104,7 @@ function Quotations() {
         </CardContent>
       </Card>
 
-      <DocumentDialog open={!!viewQ} onClose={() => setViewQ(null)}>
+      <DocumentDialog open={!!viewQ} onClose={() => setViewQ(null)} initialLetterhead={viewQ?.prePrintedLetterhead}>
         {viewQ && <PrintQuotation quotation={viewQ} />}
       </DocumentDialog>
 

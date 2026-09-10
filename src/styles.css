@@ -64,6 +64,9 @@
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
   --color-primary-glow: var(--primary-glow);
+  --color-modal-accent: var(--modal-accent);
+  --color-modal-accent-foreground: var(--modal-accent-foreground);
+  --color-modal-accent-soft: var(--modal-accent-soft);
 }
 
 :root {
@@ -77,6 +80,9 @@
   --primary: oklch(0.62 0.12 195);
   --primary-foreground: oklch(0.99 0 0);
   --primary-glow: oklch(0.72 0.14 190);
+  --modal-accent: oklch(0.55 0.24 295);
+  --modal-accent-foreground: oklch(0.99 0 0);
+  --modal-accent-soft: oklch(0.96 0.025 295);
   --secondary: oklch(0.95 0.01 210);
   --secondary-foreground: oklch(0.28 0.03 235);
   --muted: oklch(0.95 0.008 220);
@@ -131,6 +137,9 @@
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.551 0.027 264.364);
+  --modal-accent: oklch(0.72 0.18 295);
+  --modal-accent-foreground: oklch(0.16 0.03 295);
+  --modal-accent-soft: oklch(0.28 0.07 295);
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);

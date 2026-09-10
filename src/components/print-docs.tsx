@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -104,12 +104,12 @@ export function PrintInvoice({ invoice }: { invoice: Invoice }) {
             <td style={{ width: "24%" }} className="font-mono">{invoice.no}</td>
           </tr>
           <tr>
-            <td className={rowLabel}>Contact Person:</td><td>{client?.contact}</td>
+            <td className={rowLabel}>Contact Person:</td><td>{invoice.contactPerson ?? client?.contact}</td>
             <td className={rowLabel}>Invoice Date:</td><td>{invoice.date}</td>
           </tr>
           <tr>
             <td className={rowLabel}>TRN No:</td>
-            <td className="font-mono">{client?.trnNo || "—"}</td>
+            <td className="font-mono">{invoice.trnNo ?? client?.trnNo ?? "—"}</td>
             <td className={rowLabel}>LPO Number:</td><td className="font-mono">{invoice.lpoNo || "—"}</td>
           </tr>
           <tr>
@@ -118,8 +118,8 @@ export function PrintInvoice({ invoice }: { invoice: Invoice }) {
             <td className="tabular-nums">{invoice.lpoValue ? money(invoice.lpoValue, settings.currency) : "—"}</td>
           </tr>
           <tr>
-            <td className={rowLabel}>Site Location:</td><td>{client?.address}</td>
-            <td className={rowLabel}></td><td></td>
+            <td className={rowLabel}>Site Location:</td><td>{invoice.siteLocation ?? client?.address}</td>
+            <td className={rowLabel}>Due Date:</td><td>{invoice.dueDate || "—"}</td>
           </tr>
         </tbody>
       </table>
@@ -172,6 +172,13 @@ export function PrintInvoice({ invoice }: { invoice: Invoice }) {
         </tbody>
       </table>
 
+      {invoice.notes && (
+        <div className="mt-4 avoid-break">
+          <div className="text-xs font-bold uppercase mb-1" style={{ color: "#0f766e" }}>Notes / Remarks</div>
+          <div className="text-[12px] leading-relaxed border p-2 whitespace-pre-wrap" style={{ borderColor: "#0f766e" }}>{invoice.notes}</div>
+        </div>
+      )}
+
       <div className="mt-6">
         <div className="text-xs font-bold uppercase mb-1" style={{ color: "#0f766e" }}>Bank Payment Details</div>
         <div className="text-[12px] leading-relaxed border p-2" style={{ borderColor: "#0f766e" }}>
@@ -204,12 +211,12 @@ export function PrintQuotation({ quotation }: { quotation: Quotation }) {
             <td style={{ width: "24%" }} className="font-mono">{quotation.no}</td>
           </tr>
           <tr>
-            <td className={rowLabel}>Contact Person:</td><td>{client?.contact}</td>
+            <td className={rowLabel}>Contact Person:</td><td>{quotation.contactPerson ?? client?.contact}</td>
             <td className={rowLabel}>Date:</td><td>{quotation.date}</td>
           </tr>
           <tr>
             <td className={rowLabel}>TRN No:</td>
-            <td className="font-mono">{client?.trnNo || "—"}</td>
+            <td className="font-mono">{quotation.trnNo ?? client?.trnNo ?? "—"}</td>
             <td className={rowLabel}>Valid Until:</td><td>{quotation.validUntil}</td>
           </tr>
           <tr>
@@ -217,7 +224,7 @@ export function PrintQuotation({ quotation }: { quotation: Quotation }) {
             <td className={rowLabel}></td><td></td>
           </tr>
           <tr>
-            <td className={rowLabel}>Site Location:</td><td colSpan={3}>{client?.address}</td>
+            <td className={rowLabel}>Site Location:</td><td colSpan={3}>{quotation.siteLocation ?? client?.address}</td>
           </tr>
         </tbody>
       </table>
@@ -269,6 +276,13 @@ export function PrintQuotation({ quotation }: { quotation: Quotation }) {
           </tr>
         </tbody>
       </table>
+
+      {quotation.notes && (
+        <div className="mt-4 avoid-break">
+          <div className="text-xs font-bold uppercase mb-1" style={{ color: "#0f766e" }}>Notes / Remarks</div>
+          <div className="text-[12px] leading-relaxed border p-2 whitespace-pre-wrap" style={{ borderColor: "#0f766e" }}>{quotation.notes}</div>
+        </div>
+      )}
 
       <div className="mt-6">
         <div className="text-xs font-bold uppercase mb-1" style={{ color: "#0f766e" }}>Terms &amp; Conditions</div>
@@ -526,9 +540,13 @@ export function PrintStatement({ client }: { client: Client }) {
 
 /* ---------- Dialog wrapper ---------- */
 
-export function DocumentDialog({ open, onClose, children }: { open: boolean; onClose: () => void; children: ReactNode }) {
-  const [letterhead, setLetterhead] = useState(false);
+export function DocumentDialog({ open, onClose, children, initialLetterhead = false }: { open: boolean; onClose: () => void; children: ReactNode; initialLetterhead?: boolean }) {
+  const [letterhead, setLetterhead] = useState(initialLetterhead);
   const [topMargin, setTopMargin] = useState(45);
+
+  useEffect(() => {
+    if (open) setLetterhead(initialLetterhead);
+  }, [initialLetterhead, open]);
 
   return (
     <Dialog open={open} onOpenChange={onClose}>

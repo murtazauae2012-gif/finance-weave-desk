@@ -42,6 +42,12 @@ export interface Invoice {
   date: string;
   clientId: string;
   projectName: string;
+  contactPerson?: string;
+  trnNo?: string;
+  siteLocation?: string;
+  dueDate?: string;
+  notes?: string;
+  prePrintedLetterhead?: boolean;
   lpoNo: string;
   lpoValue: number;
   items: LineItem[];
@@ -56,6 +62,11 @@ export interface Quotation {
   validUntil: string;
   clientId: string;
   projectName: string;
+  contactPerson?: string;
+  trnNo?: string;
+  siteLocation?: string;
+  notes?: string;
+  prePrintedLetterhead?: boolean;
   items: LineItem[];
   taxRate: number;
   status: QuoteStatus;
@@ -312,10 +323,17 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     convertQuoteToInvoice: (id) => {
       const q = quotations.find((x) => x.id === id);
       if (!q) return null;
+       const client = clients.find((item) => item.id === q.clientId);
       const no = settings.nextInvoiceNo;
       const inv: Invoice = {
         id: `IV-${Date.now()}`, no, date: new Date().toISOString().slice(0, 10),
         clientId: q.clientId, projectName: q.projectName, lpoNo: "", lpoValue: quoteTotal(q),
+         contactPerson: q.contactPerson ?? client?.contact,
+         trnNo: q.trnNo ?? client?.trnNo,
+         siteLocation: q.siteLocation ?? client?.address,
+         dueDate: q.validUntil,
+         notes: q.notes,
+         prePrintedLetterhead: q.prePrintedLetterhead,
         items: q.items, taxRate: q.taxRate, payments: [],
       };
       setInvoices((prev) => [...prev, inv]);

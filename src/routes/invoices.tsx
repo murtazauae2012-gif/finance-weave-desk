@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
+  Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
 } from "@/components/ui/dialog";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -17,7 +18,7 @@ import {
   useStore, money, invoiceSubtotal, invoiceTax, invoiceTotal,
   invoicePaid, invoiceOutstanding, type Invoice, type LineItem, type Payment,
 } from "@/lib/store";
-import { Plus, Trash2, Eye, CreditCard, Receipt, Pencil } from "lucide-react";
+import { Plus, Trash2, Eye, CreditCard, Receipt, Pencil, FileText } from "lucide-react";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -100,7 +101,7 @@ function Invoices() {
         </CardContent>
       </Card>
 
-      <DocumentDialog open={!!viewInv} onClose={() => setViewInv(null)}>
+      <DocumentDialog open={!!viewInv} onClose={() => setViewInv(null)} initialLetterhead={viewInv?.prePrintedLetterhead}>
         {viewInv && <PrintInvoice invoice={viewInv} />}
       </DocumentDialog>
       <DocumentDialog open={!!voucherOf} onClose={() => setVoucherOf(null)}>
