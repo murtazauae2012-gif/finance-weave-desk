@@ -44,7 +44,6 @@ export interface Invoice {
   projectName: string;
   contactPerson?: string;
   trnNo?: string;
-  siteLocation?: string;
   dueDate?: string;
   notes?: string;
   prePrintedLetterhead?: boolean;
@@ -64,7 +63,6 @@ export interface Quotation {
   projectName: string;
   contactPerson?: string;
   trnNo?: string;
-  siteLocation?: string;
   notes?: string;
   prePrintedLetterhead?: boolean;
   items: LineItem[];
@@ -106,6 +104,8 @@ export interface Settings {
   vatRate: number;
   bankDetails: string;
   logo: string;
+  /** Data URL of a custom A4 letterhead image used when printing on pre-printed letterhead */
+  letterhead: string;
   nextInvoiceNo: string;
   nextQuotationNo: string;
 }
@@ -256,6 +256,7 @@ const seedSettings: Settings = {
   vatRate: 5,
   bankDetails: "Emirates NBD  •  A/C: 1023 4455 6677  •  IBAN: AE12 0260 0010 2344 5566 778",
   logo: "",
+  letterhead: "",
   nextInvoiceNo: "INV-0004",
   nextQuotationNo: "QTN-0005",
 };
@@ -330,7 +331,6 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         clientId: q.clientId, projectName: q.projectName, lpoNo: "", lpoValue: quoteTotal(q),
          contactPerson: q.contactPerson ?? client?.contact,
          trnNo: q.trnNo ?? client?.trnNo,
-         siteLocation: q.siteLocation ?? client?.address,
          dueDate: q.validUntil,
          notes: q.notes,
          prePrintedLetterhead: q.prePrintedLetterhead,
