@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogFooter, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -554,6 +554,7 @@ export function DocumentDialog({ open, onClose, children, initialLetterhead = fa
         className={`print-dialog max-w-[220mm] max-h-[95vh] overflow-y-auto p-4 bg-neutral-100${letterhead ? " letterhead-mode" : ""}`}
         style={{ ["--letterhead-top" as string]: `${topMargin}mm` }}
       >
+        <DialogTitle className="sr-only">Document Preview</DialogTitle>
         {children}
         <div className="no-print sticky bottom-0 bg-neutral-100 pt-2 space-y-3">
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-md border border-border bg-card p-3 text-sm">
