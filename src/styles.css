@@ -230,9 +230,8 @@
     background: white !important;
     display: block !important;
     /* Tailwind v4 translate utility uses the standalone `translate` property.
-       `none` (not `0 0`) so fixed-position letterhead layers span the page. */
+       Must be `none` (not `0 0`) so fixed-position letterhead layers span the page. */
     translate: none !important;
-    transform: none !important;
   }
 
   .print-sheet {
