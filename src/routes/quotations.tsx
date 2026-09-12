@@ -152,7 +152,6 @@ function QuotationFormDialog({ onSubmit, editing, onClose }: {
   const selectedClient = clients.find((client) => client.id === clientId);
   const [contactPerson, setContactPerson] = useState(editing?.contactPerson ?? selectedClient?.contact ?? "");
   const [trnNo, setTrnNo] = useState(editing?.trnNo ?? selectedClient?.trnNo ?? "");
-  const [siteLocation, setSiteLocation] = useState(editing?.siteLocation ?? selectedClient?.address ?? "");
   const [date, setDate] = useState(editing?.date ?? new Date().toISOString().slice(0, 10));
   const [validUntil, setValidUntil] = useState(
     editing?.validUntil ?? new Date(Date.now() + 30 * 864e5).toISOString().slice(0, 10)
@@ -175,18 +174,17 @@ function QuotationFormDialog({ onSubmit, editing, onClose }: {
     const client = clients.find((item) => item.id === id);
     setContactPerson(client?.contact ?? "");
     setTrnNo(client?.trnNo ?? "");
-    setSiteLocation(client?.address ?? "");
   };
 
   const save = () => {
     if (!clientId) return toast.error("Select client");
     onSubmit({
-      date, validUntil, clientId, projectName, contactPerson, trnNo, siteLocation, notes, prePrintedLetterhead, items,
+      date, validUntil, clientId, projectName, contactPerson, trnNo, notes, prePrintedLetterhead, items,
       taxRate: editing?.taxRate ?? settings.vatRate,
       status: editing?.status ?? "Draft",
     });
     if (editing) return;
-    setOpen(false); setClientId(""); setProjectName(""); setContactPerson(""); setTrnNo(""); setSiteLocation(""); setNotes(""); setPrePrintedLetterhead(false);
+    setOpen(false); setClientId(""); setProjectName(""); setContactPerson(""); setTrnNo(""); setNotes(""); setPrePrintedLetterhead(false);
     setItems([{ description: "", qty: 1, unit: "Pcs", unitPrice: 0 }]);
   };
 
@@ -210,7 +208,6 @@ function QuotationFormDialog({ onSubmit, editing, onClose }: {
               <div className="space-y-1.5"><Label>Contact Person</Label><Input value={contactPerson} onChange={(e) => setContactPerson(e.target.value)} /></div>
               <div className="space-y-1.5"><Label>TRN No</Label><Input value={trnNo} maxLength={16} onChange={(e) => setTrnNo(e.target.value.replace(/\D/g, "").slice(0, 16))} inputMode="numeric" /></div>
               <div className="space-y-1.5 sm:col-span-2"><Label>Project Name</Label><Input value={projectName} onChange={(e) => setProjectName(e.target.value)} /></div>
-              <div className="space-y-1.5 sm:col-span-2"><Label>Site Location</Label><Input value={siteLocation} onChange={(e) => setSiteLocation(e.target.value)} /></div>
               <div className="space-y-1.5 sm:col-span-2"><Label>Quotation Number</Label><Input value={editing?.no ?? settings.nextQuotationNo} readOnly className="bg-muted font-mono" /></div>
               <div className="space-y-1.5"><Label>Date</Label><Input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></div>
               <div className="space-y-1.5"><Label>Valid Until</Label><Input type="date" value={validUntil} onChange={(e) => setValidUntil(e.target.value)} /></div>

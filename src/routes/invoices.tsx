@@ -157,7 +157,6 @@ function NewInvoiceDialog({ onCreate, editing, onClose }: {
   const selectedClient = clients.find((client) => client.id === clientId);
   const [contactPerson, setContactPerson] = useState(editing?.contactPerson ?? selectedClient?.contact ?? "");
   const [trnNo, setTrnNo] = useState(editing?.trnNo ?? selectedClient?.trnNo ?? "");
-  const [siteLocation, setSiteLocation] = useState(editing?.siteLocation ?? selectedClient?.address ?? "");
   const [lpoNo, setLpoNo] = useState(editing?.lpoNo ?? "");
   const [lpoValue, setLpoValue] = useState(editing?.lpoValue ?? 0);
   const [date, setDate] = useState(editing?.date ?? new Date().toISOString().slice(0, 10));
@@ -180,19 +179,18 @@ function NewInvoiceDialog({ onCreate, editing, onClose }: {
     const client = clients.find((item) => item.id === id);
     setContactPerson(client?.contact ?? "");
     setTrnNo(client?.trnNo ?? "");
-    setSiteLocation(client?.address ?? "");
   };
 
   const save = () => {
     if (!clientId || !projectName) { toast.error("Select client and project"); return; }
     onCreate({
-      date, dueDate, clientId, projectName, contactPerson, trnNo, siteLocation, notes, prePrintedLetterhead, lpoNo, lpoValue, items,
+      date, dueDate, clientId, projectName, contactPerson, trnNo, notes, prePrintedLetterhead, lpoNo, lpoValue, items,
       taxRate: editing?.taxRate ?? settings.vatRate,
       payments: editing?.payments ?? [],
     });
     if (editing) return;
     setOpen(false);
-    setClientId(""); setProjectName(""); setContactPerson(""); setTrnNo(""); setSiteLocation(""); setNotes(""); setPrePrintedLetterhead(false); setLpoNo(""); setLpoValue(0);
+    setClientId(""); setProjectName(""); setContactPerson(""); setTrnNo(""); setNotes(""); setPrePrintedLetterhead(false); setLpoNo(""); setLpoValue(0);
     setItems([{ description: "", qty: 1, unit: "Pcs", unitPrice: 0 }]);
   };
 
@@ -219,7 +217,6 @@ function NewInvoiceDialog({ onCreate, editing, onClose }: {
               <div className="space-y-1.5"><Label>Contact Person</Label><Input value={contactPerson} onChange={(e) => setContactPerson(e.target.value)} /></div>
               <div className="space-y-1.5"><Label>TRN No</Label><Input value={trnNo} maxLength={16} onChange={(e) => setTrnNo(e.target.value.replace(/\D/g, "").slice(0, 16))} inputMode="numeric" /></div>
               <div className="space-y-1.5 sm:col-span-2"><Label>Project Name</Label><Input value={projectName} onChange={(e) => setProjectName(e.target.value)} /></div>
-              <div className="space-y-1.5 sm:col-span-2"><Label>Site Location</Label><Input value={siteLocation} onChange={(e) => setSiteLocation(e.target.value)} /></div>
               <div className="space-y-1.5"><Label>Invoice Number</Label><Input value={editing?.no ?? settings.nextInvoiceNo} readOnly className="bg-muted font-mono" /></div>
               <div className="space-y-1.5"><Label>Date</Label><Input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></div>
               <div className="space-y-1.5"><Label>Due Date</Label><Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} /></div>
