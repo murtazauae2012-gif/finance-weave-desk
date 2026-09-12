@@ -174,10 +174,29 @@
   padding-top: var(--letterhead-top, 45mm) !important;
 }
 
+/* Custom uploaded letterhead image: hidden by default, layered behind the sheet in letterhead mode */
+.letterhead-bg {
+  display: none;
+}
+.print-dialog.letterhead-mode .letterhead-bg {
+  display: block;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: top center;
+  z-index: -1;
+  pointer-events: none;
+}
+
 /* Print / PDF export: hide app UI and render only the .print-sheet (A4) */
 @media print {
   @page { size: A4; margin: 12mm; }
   @page statement-landscape { size: A4 landscape; margin: 12mm; }
+  /* Full-bleed pages so an uploaded letterhead image can cover the whole sheet */
+  @page letterhead-portrait { size: A4; margin: 0; }
+  @page letterhead-landscape { size: A4 landscape; margin: 0; }
 
   html, body {
     width: 100% !important;
@@ -210,8 +229,9 @@
     box-shadow: none !important;
     background: white !important;
     display: block !important;
-    /* Tailwind v4 translate utility uses the standalone `translate` property */
-    translate: 0 0 !important;
+    /* Tailwind v4 translate utility uses the standalone `translate` property.
+       Must be `none` (not `0 0`) so fixed-position letterhead layers span the page. */
+    translate: none !important;
   }
 
   .print-sheet {
@@ -232,6 +252,27 @@
 
   .print-sheet-landscape {
     page: statement-landscape;
+  }
+
+  /* Uploaded letterhead: page margins move into the sheet padding and the image
+     is fixed so it repeats on every printed page. */
+  .print-dialog.has-letterhead-image .print-sheet {
+    page: letterhead-portrait;
+    padding: var(--letterhead-top, 45mm) 12mm 12mm 12mm !important;
+  }
+  .print-dialog.has-letterhead-image .print-sheet-landscape {
+    page: letterhead-landscape;
+  }
+  .print-dialog.has-letterhead-image .letterhead-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 210mm;
+    height: 297mm;
+  }
+  .print-dialog.has-letterhead-image .print-sheet-landscape .letterhead-bg {
+    width: 297mm;
+    height: 210mm;
   }
 
   .print-sheet table,

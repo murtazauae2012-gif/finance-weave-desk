@@ -13,11 +13,16 @@ import {
 /* ---------- shared sheet chrome ---------- */
 
 function Sheet({ children, landscape = false }: { children: ReactNode; landscape?: boolean }) {
+  const { settings } = useStore();
   return (
     <div
-      className={`print-sheet bg-white text-black mx-auto${landscape ? " print-sheet-landscape" : ""}`}
+      className={`print-sheet relative isolate bg-white text-black mx-auto${landscape ? " print-sheet-landscape" : ""}`}
       style={{ width: landscape ? "297mm" : "210mm", maxWidth: "100%", minHeight: landscape ? "210mm" : "297mm", padding: "14mm", fontFamily: "'Helvetica Neue', Arial, sans-serif" }}
     >
+      {settings.letterhead && (
+        // Only shown when the preview dialog is in letterhead mode (see styles.css)
+        <img src={settings.letterhead} alt="" aria-hidden className="letterhead-bg" />
+      )}
       {children}
     </div>
   );
@@ -27,6 +32,9 @@ function CompanyHeader({ subtitle }: { subtitle: string }) {
   const { settings } = useStore();
   return (
     <div className="digital-header text-center border-b-2 pb-3 mb-4" style={{ borderColor: "#0f766e" }}>
+      {settings.logo && (
+        <img src={settings.logo} alt={`${settings.companyName} logo`} className="mx-auto mb-2 h-16 w-auto object-contain" />
+      )}
       <div className="text-2xl font-bold tracking-wide uppercase" style={{ color: "#0f766e" }}>
         {settings.companyName}
       </div>
@@ -49,7 +57,8 @@ const totalBg = { background: "#e6f4f2" };
 const numberOnly = (value: number) =>
   new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value || 0);
 
-const aed = (value: number) => `AED ${numberOnly(value)}`;
+/** Line-item amounts are printed as plain numbers (no "AED" prefix). */
+const aed = numberOnly;
 
 const SMALL_NUMBERS = [
   "Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten",
@@ -118,7 +127,7 @@ export function PrintInvoice({ invoice }: { invoice: Invoice }) {
             <td className="tabular-nums">{invoice.lpoValue ? money(invoice.lpoValue, settings.currency) : "—"}</td>
           </tr>
           <tr>
-            <td className={rowLabel}>Site Location:</td><td>{invoice.siteLocation ?? client?.address}</td>
+            <td className={rowLabel}></td><td></td>
             <td className={rowLabel}>Due Date:</td><td>{invoice.dueDate || "—"}</td>
           </tr>
         </tbody>
@@ -222,9 +231,6 @@ export function PrintQuotation({ quotation }: { quotation: Quotation }) {
           <tr>
             <td className={rowLabel}>Project Name:</td><td>{quotation.projectName}</td>
             <td className={rowLabel}></td><td></td>
-          </tr>
-          <tr>
-            <td className={rowLabel}>Site Location:</td><td colSpan={3}>{quotation.siteLocation ?? client?.address}</td>
           </tr>
         </tbody>
       </table>
@@ -541,8 +547,10 @@ export function PrintStatement({ client }: { client: Client }) {
 /* ---------- Dialog wrapper ---------- */
 
 export function DocumentDialog({ open, onClose, children, initialLetterhead = false }: { open: boolean; onClose: () => void; children: ReactNode; initialLetterhead?: boolean }) {
+  const { settings } = useStore();
   const [letterhead, setLetterhead] = useState(initialLetterhead);
   const [topMargin, setTopMargin] = useState(45);
+  const hasLetterheadImage = !!settings.letterhead;
 
   useEffect(() => {
     if (open) setLetterhead(initialLetterhead);
@@ -551,7 +559,7 @@ export function DocumentDialog({ open, onClose, children, initialLetterhead = fa
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent
-        className={`print-dialog max-w-[220mm] max-h-[95vh] overflow-y-auto p-4 bg-neutral-100${letterhead ? " letterhead-mode" : ""}`}
+        className={`print-dialog max-w-[220mm] max-h-[95vh] overflow-y-auto p-4 bg-neutral-100${letterhead ? " letterhead-mode" : ""}${letterhead && hasLetterheadImage ? " has-letterhead-image" : ""}`}
         style={{ ["--letterhead-top" as string]: `${topMargin}mm` }}
       >
         <DialogTitle className="sr-only">Document Preview</DialogTitle>
@@ -573,7 +581,11 @@ export function DocumentDialog({ open, onClose, children, initialLetterhead = fa
                   onChange={(e) => setTopMargin(Number(e.target.value) || 0)}
                   className="h-8 w-20"
                 />
-                <span className="hidden sm:inline">Space for your paper's printed logo — the company header is hidden.</span>
+                <span className="hidden sm:inline">
+                  {hasLetterheadImage
+                    ? "Your uploaded letterhead is placed behind the document — the digital header is hidden."
+                    : "Space for your paper's printed logo — the company header is hidden."}
+                </span>
               </label>
             )}
           </div>
