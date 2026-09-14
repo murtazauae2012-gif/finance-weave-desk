@@ -229,9 +229,8 @@
     box-shadow: none !important;
     background: white !important;
     display: block !important;
-    /* Tailwind v4 translate utility uses the standalone `translate` property.
-       Must be `none` (not `0 0`) so fixed-position letterhead layers span the page. */
-    translate: none !important;
+    /* Tailwind v4 translate utility uses the standalone `translate` property */
+    translate: 0 0 !important;
   }
 
   .print-sheet {
@@ -254,8 +253,8 @@
     page: statement-landscape;
   }
 
-  /* Uploaded letterhead: page margins move into the sheet padding and the image
-     is fixed so it repeats on every printed page. */
+  /* Uploaded letterhead: page margins move into the sheet padding so the image
+     can bleed to the edges of the printed page. */
   .print-dialog.has-letterhead-image .print-sheet {
     page: letterhead-portrait;
     padding: var(--letterhead-top, 45mm) 12mm 12mm 12mm !important;
@@ -264,14 +263,13 @@
     page: letterhead-landscape;
   }
   .print-dialog.has-letterhead-image .letterhead-bg {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 210mm;
+    position: absolute;
+    inset: 0;
+    width: 100%;
     height: 297mm;
+    object-fit: fill;
   }
   .print-dialog.has-letterhead-image .print-sheet-landscape .letterhead-bg {
-    width: 297mm;
     height: 210mm;
   }
 
